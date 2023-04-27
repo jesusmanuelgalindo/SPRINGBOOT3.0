@@ -19,8 +19,8 @@ public class TareasAutomaticas {
 
     @Scheduled(cron = "0 00 15 * * ?") // 15:00
     @Scheduled(cron = "0 05 15 * * ?") // 15:05
-    public void TareaACiertaHora() {
-
+    public void TareaACiertaHora()
+    {
         logger.info("Tarea Automatica programada");
     }
 }

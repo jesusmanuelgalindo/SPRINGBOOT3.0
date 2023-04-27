@@ -9,22 +9,16 @@ import javax.persistence.*;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "receptor")
+@Table(name = "cat_receptores")
 public class Receptor {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer idReceptor;
-
     private String rfc;
-
     private String razonSocial;
-
     private Integer codigoPostal;
-
     private String regimenFiscal;
-
     private String email;
 
-    // Constructores, getters y setters
 }

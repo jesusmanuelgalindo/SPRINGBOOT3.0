@@ -10,19 +10,12 @@ import javax.persistence.*;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "conceptos_de_pago")
-public class ConceptoDePago {
+@Table(name = "cat_formas_de_pago")
+public class FormaDePago {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "factura_id")
-    private Factura factura;
-    private Integer clave;
-    private Integer conceptoFiscal;
     private String descripcion;
-    private Double monto;
-    private Double tasa;
+
 }
