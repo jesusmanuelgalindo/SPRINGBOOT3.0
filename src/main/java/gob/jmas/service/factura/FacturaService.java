@@ -6,6 +6,7 @@ public interface FacturaService {
     Factura getFacturaById(Integer id);
     List<Factura> getAllFacturas();
     Factura createFactura(Factura facturaNueva);
-    Factura updateFactura(Integer noFactura, Factura facturaActualizada);
-    void deleteFactura(Integer noFactura);
+    Factura updateFactura(Integer id, Factura facturaActualizada);
+    void deleteFactura(Integer id);
+    void EnviarFactura(Factura factura);
 }

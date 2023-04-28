@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -44,7 +45,7 @@ public class Factura {
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "forma_de_pago_id")
     private FormaDePago formaDePago;
-    private LocalDateTime fechaDePago;
+    private LocalDate fechaDePago;
     private String emailRegistrado;
     private String emailAdicional;
     @OneToMany(mappedBy = "factura", cascade = CascadeType.ALL, orphanRemoval = true)
