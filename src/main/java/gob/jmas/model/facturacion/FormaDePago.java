@@ -1,4 +1,4 @@
-package gob.jmas.model;
+package gob.jmas.model.facturacion;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,8 +10,8 @@ import javax.persistence.*;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "cat_usos_de_cfdi")
-public class UsoDeCfdi {
+@Table(name = "cat_formas_de_pago")
+public class FormaDePago {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

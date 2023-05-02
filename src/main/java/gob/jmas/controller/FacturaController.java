@@ -1,6 +1,6 @@
 package gob.jmas.controller;
 
-import gob.jmas.model.Factura;
+import gob.jmas.model.facturacion.Factura;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.http.ResponseEntity;

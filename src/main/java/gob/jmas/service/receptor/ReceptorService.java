@@ -1,6 +1,6 @@
 package gob.jmas.service.receptor;
 
-import gob.jmas.model.Receptor;
+import gob.jmas.model.facturacion.Receptor;
 import java.util.List;
 
 public interface ReceptorService

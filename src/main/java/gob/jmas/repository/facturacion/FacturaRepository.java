@@ -1,8 +1,9 @@
-package gob.jmas.repository;
+package gob.jmas.repository.facturacion;
 
-import gob.jmas.model.Factura;
+import gob.jmas.model.facturacion.Factura;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 

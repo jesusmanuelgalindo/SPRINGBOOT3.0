@@ -1,10 +1,7 @@
 package gob.jmas.service.receptor;
 
-import gob.jmas.model.Factura;
-import gob.jmas.model.Receptor;
-import gob.jmas.repository.FacturaRepository;
-import gob.jmas.repository.ReceptorRepository;
-import gob.jmas.utils.EnviarEmail;
+import gob.jmas.model.facturacion.Receptor;
+import gob.jmas.repository.facturacion.ReceptorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

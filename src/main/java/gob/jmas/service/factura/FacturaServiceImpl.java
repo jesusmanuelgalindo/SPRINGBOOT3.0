@@ -1,7 +1,7 @@
 package gob.jmas.service.factura;
 
-import gob.jmas.model.Factura;
-import gob.jmas.repository.FacturaRepository;
+import gob.jmas.model.facturacion.Factura;
+import gob.jmas.repository.facturacion.FacturaRepository;
 import gob.jmas.utils.EnviarEmail;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

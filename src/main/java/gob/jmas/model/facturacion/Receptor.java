@@ -1,4 +1,4 @@
-package gob.jmas.model;
+package gob.jmas.model.facturacion;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

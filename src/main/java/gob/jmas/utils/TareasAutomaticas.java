@@ -1,7 +1,7 @@
 package gob.jmas.utils;
 
-import gob.jmas.model.Factura;
-import gob.jmas.model.FormaDePago;
+import gob.jmas.model.facturacion.Factura;
+import gob.jmas.model.facturacion.FormaDePago;
 import gob.jmas.service.factura.FacturaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -32,7 +32,7 @@ public class TareasAutomaticas {
         ejemplo.setFormaDePago(new FormaDePago());
         ejemplo.getFormaDePago().setDescripcion("Efectivo");
         ejemplo.setFechaDePago(LocalDate.of(2023, Month.APRIL, 28) );
-        facturaService.EnviarFactura(ejemplo);
+      // facturaService.EnviarFactura(ejemplo);
 
     }
 

@@ -1,5 +1,5 @@
 package gob.jmas.service.factura;
-import gob.jmas.model.Factura;
+import gob.jmas.model.facturacion.Factura;
 import java.util.List;
 
 public interface FacturaService {
