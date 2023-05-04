@@ -18,7 +18,9 @@ public class Receptor {
     private String rfc;
     private String razonSocial;
     private Integer codigoPostal;
-    private String regimenFiscal;
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "regimen_fiscal_id")
+    private RegimenFiscal regimenFiscal;
     private String email;
 
 }

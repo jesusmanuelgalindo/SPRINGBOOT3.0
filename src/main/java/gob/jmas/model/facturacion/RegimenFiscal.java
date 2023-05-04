@@ -1,6 +1,5 @@
-package gob.jmas.model.comercial;
+package gob.jmas.model.facturacion;
 
-import gob.jmas.model.facturacion.Factura;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -11,14 +10,13 @@ import javax.persistence.*;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "conceptos")
-public class Concepto {
+@Table(name = "cat_regimen_fiscal")
+public class RegimenFiscal {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private Integer clave;
-    private Integer conceptoFiscal;
     private String descripcion;
-    private Double tasa;
+
 }

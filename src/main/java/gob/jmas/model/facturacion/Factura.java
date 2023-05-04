@@ -33,10 +33,20 @@ public class Factura {
     private Receptor receptor;
     @Column(columnDefinition = "Text")
     private String xml;
+    @Column(columnDefinition = "Text")
+    private String cadenaOriginal;
+    @Column(columnDefinition = "Text")
+    private String selloDigitalCfdi;
+    @Column(columnDefinition = "Text")
+    private String selloDelSat;
     @Column(nullable = false, length = 10)
     private String cuenta;
     @Column(nullable = false, length = 255)
     private String nombre;
+    @Column(nullable = false, length = 255)
+    private String direccion;
+    @Column(nullable = false, length = 255)
+    private String colonia;
     @Column(nullable = false)
     private Integer caja;
     @Column(nullable = false, length = 10)
@@ -46,6 +56,11 @@ public class Factura {
     @JoinColumn(name = "forma_de_pago_id")
     private FormaDePago formaDePago;
     private LocalDate fechaDePago;
+    private LocalDateTime fechaDeCertificacion;
+    @Column(nullable = false, length = 20)
+    private Integer noCertificadoEmisor;
+    @Column(nullable = false, length = 20)
+    private Integer noCertificadoSat;
     private String emailRegistrado;
     private String emailAdicional;
     @OneToMany(mappedBy = "factura", cascade = CascadeType.ALL, orphanRemoval = true)

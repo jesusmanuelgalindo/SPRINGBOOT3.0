@@ -17,6 +17,10 @@ public class TareasAutomaticas {
 
     @Autowired
     FacturaService facturaService;
+
+    @Autowired
+    Convertir convertir;
+
     private static final Logger logger = LoggerFactory.getLogger(TareasAutomaticas.class);
 
     @Scheduled(fixedRate = 3600000) //Cada Hora
@@ -33,6 +37,7 @@ public class TareasAutomaticas {
         ejemplo.getFormaDePago().setDescripcion("Efectivo");
         ejemplo.setFechaDePago(LocalDate.of(2023, Month.APRIL, 28) );
       // facturaService.EnviarFactura(ejemplo);
+
 
     }
 
