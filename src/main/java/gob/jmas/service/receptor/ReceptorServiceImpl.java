@@ -2,7 +2,9 @@ package gob.jmas.service.receptor;
 
 import gob.jmas.model.facturacion.Receptor;
 import gob.jmas.repository.facturacion.ReceptorRepository;
+import gob.jmas.utils.Excepcion;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,22 +19,26 @@ public class ReceptorServiceImpl implements  ReceptorService {
 
 
     @Override
-    public Receptor getReceptorById(Integer id) {
+    public Receptor getReceptorById(Integer id) throws Excepcion
+    {
         Optional<Receptor> optionalreceptor = receptorRepository.findById(id);
         if (optionalreceptor.isPresent()) {
             return optionalreceptor.get();
-        } else {
-            throw new RuntimeException("Receptor no encontrado");
+        }
+        else {
+            throw new Excepcion(HttpStatus.NOT_FOUND,"NO EXISTE NINGUN REGISTRO EN LA BASE DE DATOS QUE COINCIDA CON EL ID INGRESADO");
         }
     }
 
     @Override
-    public Receptor getReceptorByRfc(String rfc) {
+    public Receptor getReceptorByRfc(String rfc) throws Excepcion
+    {
         Optional<Receptor> optionalreceptor = receptorRepository.findByRfc(rfc);
         if (optionalreceptor.isPresent()) {
             return optionalreceptor.get();
-        } else {
-            throw new RuntimeException("Receptor no encontrado");
+        }
+        else {
+            throw new Excepcion(HttpStatus.NOT_FOUND,"NO EXISTE NINGUN REGISTRO EN LA BASE DE DATOS QUE COINCIDA CON EL RFC INGRESADO");
         }
     }
 

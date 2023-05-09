@@ -20,8 +20,6 @@ public class Factura {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(nullable = false)
-    private Integer noFactura;
     @Column(nullable = false, length = 36)
     private String uuid;
     private LocalDateTime fechaFacturacion;

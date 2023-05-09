@@ -48,7 +48,6 @@ public class FacturaServiceImpl implements FacturaService {
             Factura facturaExistente = optionalFactura.get();
 
             // Actualizamos los campos de la factura existente con los valores de la factura actualizada
-            facturaExistente.setNoFactura(facturaActualizada.getNoFactura());
             facturaExistente.setUuid(facturaActualizada.getUuid());
             facturaExistente.setFechaFacturacion(facturaActualizada.getFechaFacturacion());
             facturaExistente.setUsoDeCfdi(facturaActualizada.getUsoDeCfdi());
@@ -86,7 +85,7 @@ public class FacturaServiceImpl implements FacturaService {
     }
     @Override
     public void EnviarFactura(Factura factura) {
-        String asunto="Factura No. "+factura.getNoFactura().toString()+ " JMAS Parral";
+        String asunto="Factura No. "+factura.getId().toString()+ " JMAS Parral";
         String mensaje="<!DOCTYPE HTML PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional //EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n" +
                 "<html xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:v=\"urn:schemas-microsoft-com:vml\" xmlns:o=\"urn:schemas-microsoft-com:office:office\">\n" +
                 "<head>\n" +
@@ -332,7 +331,7 @@ public class FacturaServiceImpl implements FacturaService {
                 "      <td style=\"overflow-wrap:break-word;word-break:break-word;padding:10px;font-family:arial,helvetica,sans-serif;\" align=\"left\">\n" +
                 "        \n" +
                 "  <div style=\"font-size: 14px; line-height: 140%; text-align: left; word-wrap: break-word;\">\n" +
-                "    <p style=\"line-height: 140%;\"><strong>No. Factura       : </strong>"+factura.getNoFactura()+"</p>\n" +
+                "    <p style=\"line-height: 140%;\"><strong>No. Factura       : </strong>"+factura.getId()+"</p>\n" +
                 "    <p style=\"line-height: 140%;\"><strong>UUID                 : </strong>"+factura.getUuid()+"</p>\n" +
                 "<p style=\"line-height: 140%;\"><strong>Fecha del Pago: </strong>"+factura.getFechaDePago()+"</p>\n" +
                 "<p style=\"line-height: 140%;\"><strong>Monto Total      : </strong>$ SIN CALCULAR AUN</p>\n" +
