@@ -1,7 +1,10 @@
 package gob.jmas.service.receptor;
 
+import gob.jmas.dto.ReceptorDto;
 import gob.jmas.model.facturacion.Receptor;
+import gob.jmas.model.facturacion.RegimenFiscal;
 import gob.jmas.repository.facturacion.ReceptorRepository;
+import gob.jmas.service.regimenFiscal.RegimenFiscalService;
 import gob.jmas.utils.Excepcion;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,39 +20,60 @@ public class ReceptorServiceImpl implements  ReceptorService {
     @Autowired
     private ReceptorRepository receptorRepository;
 
+    @Autowired
+    private RegimenFiscalService regimenFiscalService;
 
     @Override
     public Receptor getReceptorById(Integer id) throws Excepcion
     {
-        Optional<Receptor> optionalreceptor = receptorRepository.findById(id);
-        if (optionalreceptor.isPresent()) {
-            return optionalreceptor.get();
+        Optional<Receptor> optionalReceptor = receptorRepository.findById(id);
+        if (optionalReceptor.isPresent()) {
+            return optionalReceptor.get();
         }
         else {
-            throw new Excepcion(HttpStatus.NOT_FOUND,"NO EXISTE NINGUN REGISTRO EN LA BASE DE DATOS QUE COINCIDA CON EL ID INGRESADO");
+            throw new Excepcion(HttpStatus.NOT_FOUND,"NO EXISTE NINGUN REGISTRO EN LA BASE DE DATOS DE RECEPTORES QUE COINCIDA CON EL ID '"+id.toString()+"'");
         }
     }
 
     @Override
     public Receptor getReceptorByRfc(String rfc) throws Excepcion
     {
-        Optional<Receptor> optionalreceptor = receptorRepository.findByRfc(rfc);
-        if (optionalreceptor.isPresent()) {
-            return optionalreceptor.get();
+        Optional<Receptor> optionalReceptor = receptorRepository.findByRfc(rfc);
+        if (optionalReceptor.isPresent()) {
+            return optionalReceptor.get();
         }
         else {
-            throw new Excepcion(HttpStatus.NOT_FOUND,"NO EXISTE NINGUN REGISTRO EN LA BASE DE DATOS QUE COINCIDA CON EL RFC INGRESADO");
+            throw new Excepcion(HttpStatus.NOT_FOUND,"NO EXISTE NINGUN REGISTRO EN LA BASE DE DATOS DE RECEPTORES QUE COINCIDA CON EL RFC '"+rfc+"'");
         }
     }
 
-    @Override
-    public List<Receptor> getAllReceptores() {
-        return receptorRepository.findAll();
-    }
 
     @Override
-    public Receptor createReceptor(Receptor receptorNuevo) {
-        return receptorRepository.save(receptorNuevo);
+    public Receptor createReceptor(ReceptorDto receptorDto) {
+        Optional<Receptor> optionalReceptor = receptorRepository.findByRfc(receptorDto.getRfc());
+        if (optionalReceptor.isPresent()) {
+            throw new Excepcion(HttpStatus.CONFLICT,"EL RFC '"+receptorDto.getRfc()+"' YA FUÉ REGISTRADO ANTERIORMENTE EN LA BASE DE DATOS");
+        }
+        else
+        {
+            Receptor receptor = new Receptor();
+            receptor.setRfc(receptorDto.getRfc());
+            receptor.setRazonSocial(receptorDto.getRazonSocial());
+            receptor.setCodigoPostal(receptorDto.getCodigoPostal());
+            receptor.setEmail(receptorDto.getEmail());
+            try
+            {
+                RegimenFiscal regimenFiscal = regimenFiscalService.getRegimenFiscalById(receptorDto.getIdRegimenFiscal());
+                receptor.setRegimenFiscal(regimenFiscal);
+            }
+            catch (Excepcion e)
+            {
+                throw new Excepcion(e.getTipo(),e.getMessage());
+            }
+
+
+            return receptorRepository.save(receptor);
+        }
     }
 
     @Override
@@ -75,6 +99,10 @@ public class ReceptorServiceImpl implements  ReceptorService {
             throw new RuntimeException("receptor no Encontrado");
             // throw new NotFoundException("No se encontró la receptor con el número y UUID especificados");
         }
+    }
+    @Override
+    public List<Receptor> getAllReceptores() {
+        return receptorRepository.findAll();
     }
 
     @Override
