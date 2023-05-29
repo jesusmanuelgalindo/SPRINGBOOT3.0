@@ -39,7 +39,6 @@ public class ComercialDatabaseConfig {
     public DataSource comercialDataSource() {
         return comercialDataSourceProperties().initializeDataSourceBuilder().build();
     }
-
     @Bean(name = "comercialEntityManagerFactory")
     public LocalContainerEntityManagerFactoryBean comercialEntityManagerFactory(EntityManagerFactoryBuilder builder) {
         return builder
@@ -49,7 +48,6 @@ public class ComercialDatabaseConfig {
                 .properties(hibernateProperties())
                 .build();
     }
-
     private Map<String, Object> hibernateProperties() {
         Map<String, Object> properties = new HashMap<>();
         properties.put("hibernate.hbm2ddl.auto", environment.getProperty("comercial.jpa.hibernate.ddl-auto"));

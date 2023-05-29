@@ -49,56 +49,59 @@ public class ReceptorServiceImpl implements  ReceptorService {
 
 
     @Override
-    public Receptor createReceptor(ReceptorDto receptorDto) {
-        Optional<Receptor> optionalReceptor = receptorRepository.findByRfc(receptorDto.getRfc());
+    public Receptor createReceptor(Receptor receptor) throws Excepcion {
+        Optional<Receptor> optionalReceptor = receptorRepository.findByRfc(receptor.getRfc());
         if (optionalReceptor.isPresent()) {
-            throw new Excepcion(HttpStatus.CONFLICT,"EL RFC '"+receptorDto.getRfc()+"' YA FUÉ REGISTRADO ANTERIORMENTE EN LA BASE DE DATOS");
+            throw new Excepcion(HttpStatus.CONFLICT,"EL RFC '"+receptor.getRfc()+"' YA FUÉ REGISTRADO ANTERIORMENTE EN LA BASE DE DATOS");
         }
         else
         {
-            Receptor receptor = new Receptor();
-            receptor.setRfc(receptorDto.getRfc());
-            receptor.setRazonSocial(receptorDto.getRazonSocial());
-            receptor.setCodigoPostal(receptorDto.getCodigoPostal());
-            receptor.setEmail(receptorDto.getEmail());
-            try
-            {
-                RegimenFiscal regimenFiscal = regimenFiscalService.getRegimenFiscalById(receptorDto.getIdRegimenFiscal());
-                receptor.setRegimenFiscal(regimenFiscal);
-            }
-            catch (Excepcion e)
-            {
-                throw new Excepcion(e.getTipo(),e.getMessage());
-            }
-
-
-            return receptorRepository.save(receptor);
+            Receptor receptorNuevo = new Receptor();
+            receptorNuevo.setRfc(receptor.getRfc());
+            receptorNuevo.setRazonSocial(receptor.getRazonSocial());
+            receptorNuevo.setCodigoPostal(receptor.getCodigoPostal());
+            receptorNuevo.setEmail(receptor.getEmail());
+            receptorNuevo.setRegimenFiscal(regimenFiscalService.getRegimenFiscalById(receptor.getRegimenFiscal().getId()));
+            return receptorRepository.save(receptorNuevo);
         }
     }
 
-    @Override
-    public Receptor updateReceptor(Integer id, Receptor receptorActualizado) {
-        // Buscamos la receptor a actualizar
-        Optional<Receptor> optionalReceptor = receptorRepository.findById(id);
 
-        if (optionalReceptor.isPresent()) {
+
+    @Override
+    public Receptor updateReceptor(Integer id, Receptor receptor) throws Excepcion {
+        // Buscamos la receptor a actualizar
+        Optional<Receptor> optionalReceptor = receptorRepository.findById(receptor.getId());
+        if (optionalReceptor.isPresent())
+        {
             Receptor receptorExistente = optionalReceptor.get();
 
-            // Actualizamos los campos del receptor existente con los valores del receptor actualizado
-            receptorExistente.setRfc(receptorActualizado.getRfc());
-            receptorExistente.setRazonSocial(receptorActualizado.getRazonSocial());
-            receptorExistente.setCodigoPostal(receptorActualizado.getCodigoPostal());
-            receptorExistente.setRegimenFiscal(receptorActualizado.getRegimenFiscal());
-            receptorExistente.setEmail(receptorActualizado.getEmail());
+            // Verificar los campos que no están vacíos en el receptor recibido y actualizar el receptor existente
+            if (receptor.getRfc() != null && !receptor.getRfc().isEmpty()) {
+                receptorExistente.setRfc(receptor.getRfc());
+            }
+            if (receptor.getRazonSocial() != null && !receptor.getRazonSocial().isEmpty()) {
+                receptorExistente.setRazonSocial(receptor.getRazonSocial());
+            }
+            if (receptor.getCodigoPostal() != null) {
+                receptorExistente.setCodigoPostal(receptor.getCodigoPostal());
+            }
+            if (receptor.getEmail() != null && !receptor.getEmail().isEmpty()) {
+                receptorExistente.setEmail(receptor.getEmail());
+            }
+            if (receptor.getRegimenFiscal() != null && receptor.getRegimenFiscal().getId() != null) {
+                RegimenFiscal regimenFiscal = regimenFiscalService.getRegimenFiscalById(receptor.getRegimenFiscal().getId());
+                receptorExistente.setRegimenFiscal(regimenFiscal);
+            }
 
             // Guardamos los cambios en la base de datos y retornamos la receptor actualizada
             return receptorRepository.save(receptorExistente);
         }
         else
         {
-            throw new RuntimeException("receptor no Encontrado");
-            // throw new NotFoundException("No se encontró la receptor con el número y UUID especificados");
+            throw new Excepcion(HttpStatus.NOT_FOUND,"NO SE REALIZO ACTUALIZACION DEBIDO A QUE NO EXISTE UN RECEPTOR CON EL ID '"+receptor.getId()+"' EN LA BASE DE DATOS");
         }
+
     }
     @Override
     public List<Receptor> getAllReceptores() {

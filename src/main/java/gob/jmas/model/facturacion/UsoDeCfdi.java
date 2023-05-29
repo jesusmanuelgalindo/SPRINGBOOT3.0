@@ -13,6 +13,10 @@ import javax.persistence.*;
 @Table(name = "cat_usos_de_cfdi")
 public class UsoDeCfdi {
 
+    public UsoDeCfdi(Integer id)
+    {
+        this.setId(id);
+    }
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;

@@ -11,7 +11,7 @@ public interface ReceptorService
     Receptor getReceptorById(Integer id) throws Excepcion;
     Receptor getReceptorByRfc(String rfc) throws Excepcion;
     List<Receptor> getAllReceptores();
-    Receptor createReceptor(ReceptorDto receptorDto);
-    Receptor updateReceptor(Integer id, Receptor receptorActualizado);
+    Receptor createReceptor(Receptor receptor)throws Excepcion;
+    Receptor updateReceptor(Integer id,  Receptor receptorActualizado) throws Excepcion;
     void deleteReceptor(Integer id);
 }

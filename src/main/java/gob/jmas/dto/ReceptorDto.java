@@ -10,7 +10,17 @@ import lombok.Setter;
 @NoArgsConstructor
 public class ReceptorDto {
 
-    private Integer idReceptor;
+    public ReceptorDto(ReceptorDto receptor)
+    {
+        this.id=receptor.getId();
+        this.rfc=receptor.getRfc();
+        this.razonSocial=receptor.getRazonSocial();
+        this.codigoPostal=receptor.getCodigoPostal();
+        this.idRegimenFiscal=receptor.getIdRegimenFiscal();
+        this.regimenFiscal=receptor.getRegimenFiscal();
+        this.email=receptor.getEmail();
+    }
+    private Integer id;
     private String rfc;
     private String razonSocial;
     private Integer codigoPostal;
@@ -20,7 +30,7 @@ public class ReceptorDto {
 
     public ReceptorDto(Receptor receptor)
     {
-       this.idReceptor=receptor.getIdReceptor();
+       this.id=receptor.getId();
        this.rfc=receptor.getRfc();
        this.razonSocial=receptor.getRazonSocial();
        this.codigoPostal=receptor.getCodigoPostal();

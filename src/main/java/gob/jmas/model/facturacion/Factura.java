@@ -16,6 +16,11 @@ import java.util.List;
 @Table(name = "factura")
 public class Factura {
 
+    public Factura(Integer id)
+    {
+        this.setId(id);
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;

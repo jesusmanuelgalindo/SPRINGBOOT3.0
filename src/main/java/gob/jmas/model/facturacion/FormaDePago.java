@@ -13,6 +13,10 @@ import javax.persistence.*;
 @Table(name = "cat_formas_de_pago")
 public class FormaDePago {
 
+    public FormaDePago(Integer id)
+    {
+        this.setId(id);
+    }
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;

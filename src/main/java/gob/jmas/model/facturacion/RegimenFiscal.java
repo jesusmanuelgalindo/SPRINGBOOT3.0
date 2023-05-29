@@ -13,6 +13,11 @@ import javax.persistence.*;
 @Table(name = "cat_regimen_fiscal")
 public class RegimenFiscal {
 
+    public RegimenFiscal(Integer id)
+    {
+        this.setId(id);
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;

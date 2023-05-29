@@ -1,5 +1,6 @@
 package gob.jmas.model.facturacion;
 
+import gob.jmas.dto.ReceptorDto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,14 +13,20 @@ import javax.persistence.*;
 @Table(name = "cat_receptores")
 public class Receptor {
 
+    public Receptor(Integer id)
+    {
+        this.setId(id);
+    }
+
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer idReceptor;
+    private Integer id;
     private String rfc;
     private String razonSocial;
     private Integer codigoPostal;
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "regimen_fiscal_id")
+    @JoinColumn(name = "cat_regimen_fiscal_id")
     private RegimenFiscal regimenFiscal;
     private String email;
 
