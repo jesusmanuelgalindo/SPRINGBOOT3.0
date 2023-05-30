@@ -17,6 +17,7 @@ import org.springframework.validation.annotation.Validated;
 
 @RestController
 @Validated
+@CrossOrigin
 @RequestMapping("/receptor")
 public class ReceptorController {
 
