@@ -31,7 +31,7 @@ public class ReceptorServiceImpl implements  ReceptorService {
             return optionalReceptor.get();
         }
         else {
-            throw new Excepcion(HttpStatus.NOT_FOUND,"NO EXISTE NINGUN REGISTRO EN LA BASE DE DATOS DE RECEPTORES QUE COINCIDA CON EL ID '"+id.toString()+"'");
+            throw new Excepcion(HttpStatus.NO_CONTENT,"NO EXISTE NINGUN REGISTRO EN LA BASE DE DATOS DE RECEPTORES QUE COINCIDA CON EL ID '"+id.toString()+"'");
         }
     }
 

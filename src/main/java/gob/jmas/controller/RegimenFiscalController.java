@@ -10,6 +10,7 @@ import gob.jmas.utils.Respuesta;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,17 +28,17 @@ public class RegimenFiscalController {
     RegimenFiscalService regimenFiscalService;
     @GetMapping("/lista")
     @ApiOperation(value = "Obtiene el listado del Catalogo de Regimenes Fiscales")
-    public Respuesta<List<RegimenFiscal>> getAllRegimenFiscal()
+    public ResponseEntity<Respuesta<List<RegimenFiscal>>> getAllRegimenFiscal()
     {
         String nombreDelEndpoint="/regimenFiscal/lista";
         try
         {
             List<RegimenFiscal> regimenesFiscales = regimenFiscalService.findAllRegimenFiscal();
-            return new Respuesta<List<RegimenFiscal>>(nombreDelEndpoint,0, HttpStatus.OK,regimenesFiscales, regimenesFiscales.size(),"");
+            return ResponseEntity.ok(new Respuesta<List<RegimenFiscal>>(regimenesFiscales, regimenesFiscales.size(),""));
         }
         catch (Excepcion e)
         {
-            return new Respuesta<List<RegimenFiscal>>(nombreDelEndpoint,0, e.getTipo(),null,0,e.getMessage());
+            return ResponseEntity.status(e.getTipo()).body(new Respuesta<List<RegimenFiscal>>(null,0,e.getMessage()));
         }
     }
 }

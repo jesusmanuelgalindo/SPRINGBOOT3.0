@@ -8,6 +8,7 @@ import gob.jmas.service.regimenFiscal.RegimenFiscalService;
 import gob.jmas.utils.Excepcion;
 import gob.jmas.utils.Respuesta;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.Pattern;
@@ -29,23 +30,23 @@ public class ReceptorController {
 //    //
     @GetMapping("/{rfc}")
     @ApiOperation(value = "Obtiene los datos del Receptor buscandolo por RFC")
-    public Respuesta<ReceptorDto> getReceptorByRFC(@PathVariable   @Pattern(regexp = "^[A-Za-z]{3,4}\\d{6}[A-Za-z0-9]{2}\\d$", message = "NO INGRESÓ UN RFC VALIDO. VERIFIQUE EL FORMATO") String rfc)
+    public ResponseEntity<Respuesta<ReceptorDto>> getReceptorByRFC(@PathVariable   @Pattern(regexp = "^[A-Za-z]{3,4}\\d{6}[A-Za-z0-9]{2}\\d$", message = "NO INGRESÓ UN RFC VALIDO. VERIFIQUE EL FORMATO") String rfc)
     {
         String nombreDelEndpoint="/receptores/{rfc}";
         try
         {
             Receptor receptor = receptorService.getReceptorByRfc(rfc);
-            return new Respuesta<ReceptorDto>(nombreDelEndpoint,0, HttpStatus.OK,new ReceptorDto(receptor),1,"");
+            return ResponseEntity.ok(new Respuesta<ReceptorDto>(new ReceptorDto(receptor),1,""));
         }
         catch (Excepcion e)
         {
-            return new Respuesta<ReceptorDto>(nombreDelEndpoint,0, e.getTipo(),null,0,e.getMessage());
+            return ResponseEntity.status(e.getTipo()).body(new Respuesta<ReceptorDto>(null,0,e.getMessage()));
         }
     }
 
     @PostMapping("/nuevo")
     @ApiOperation(value = "Registra un nuevo Receptor en la base de datos")
-    public Respuesta<ReceptorDto> crearReceptor(@RequestBody ReceptorDto receptorDto)
+    public ResponseEntity<Respuesta<ReceptorDto>> crearReceptor(@RequestBody ReceptorDto receptorDto)
     {
         String nombreDelEndpoint="/receptor/nuevo/";
         try
@@ -59,16 +60,16 @@ public class ReceptorController {
 
             receptor = receptorService.createReceptor(receptor);
 
-            return new Respuesta<ReceptorDto>(nombreDelEndpoint,0, HttpStatus.OK,new ReceptorDto(receptor),1,"");
+            return ResponseEntity.ok(new Respuesta<ReceptorDto>(new ReceptorDto(receptor),1,""));
         }
         catch (Excepcion e)
         {
-            return new Respuesta<ReceptorDto>(nombreDelEndpoint,0, e.getTipo(),null,0,e.getMessage());
+            return ResponseEntity.status(e.getTipo()).body(new Respuesta<ReceptorDto>(null,0,e.getMessage()));
         }
     }
     @PutMapping("/actualizar/{id}")
     @ApiOperation(value = "Actualiza los datos de un Receptor en la base de datos conservando unicamente el id")
-    public Respuesta<ReceptorDto> ActualizarReceptor(@PathVariable Integer id, @RequestBody ReceptorDto receptorDto)
+    public ResponseEntity<Respuesta<ReceptorDto>> ActualizarReceptor(@PathVariable Integer id, @RequestBody ReceptorDto receptorDto)
     {
         String nombreDelEndpoint="/receptor/actualizar";
         try
@@ -83,11 +84,11 @@ public class ReceptorController {
 
             receptor = receptorService.updateReceptor(id,receptor);
 
-            return new Respuesta<ReceptorDto>(nombreDelEndpoint,0, HttpStatus.OK,new ReceptorDto(receptor),1,"");
+            return ResponseEntity.ok(new Respuesta<ReceptorDto>(new ReceptorDto(receptor),1,""));
         }
         catch (Excepcion e)
         {
-            return new Respuesta<ReceptorDto>(nombreDelEndpoint,0, e.getTipo(),null,0,e.getMessage());
+            return ResponseEntity.status(e.getTipo()).body(new Respuesta<ReceptorDto>(null,0,e.getMessage()));
         }
     }
 
