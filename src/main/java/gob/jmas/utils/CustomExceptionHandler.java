@@ -26,11 +26,9 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
                 .collect(Collectors.toList());
 
 
-
-
-
         // Devuelve una respuesta con el cuerpo personalizado y el código de estado 400 (Bad Request)
         return ResponseEntity.badRequest().body(new Respuesta<String>(null,0,String.join(System.lineSeparator(), errors)));
-     //   return handleExceptionInternal(ex, respuesta, new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+
+
     }
 }

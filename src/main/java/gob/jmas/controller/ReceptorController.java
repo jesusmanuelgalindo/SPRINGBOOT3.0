@@ -57,9 +57,7 @@ public class ReceptorController {
             receptor.setCodigoPostal(receptorDto.getCodigoPostal());
             receptor.setRegimenFiscal(new RegimenFiscal(receptorDto.getIdRegimenFiscal()));
             receptor.setEmail(receptorDto.getEmail());
-
             receptor = receptorService.createReceptor(receptor);
-
             return ResponseEntity.ok(new Respuesta<ReceptorDto>(new ReceptorDto(receptor),1,""));
         }
         catch (Excepcion e)
@@ -81,7 +79,6 @@ public class ReceptorController {
             receptor.setCodigoPostal(receptorDto.getCodigoPostal());
             receptor.setRegimenFiscal(new RegimenFiscal(receptorDto.getIdRegimenFiscal()));
             receptor.setEmail(receptorDto.getEmail());
-
             receptor = receptorService.updateReceptor(id,receptor);
 
             return ResponseEntity.ok(new Respuesta<ReceptorDto>(new ReceptorDto(receptor),1,""));
