@@ -16,12 +16,16 @@ public class GlobalExceptionHandler {
 
         Excepcion excepcion = new Excepcion(HttpStatus.INTERNAL_SERVER_ERROR,ex.getMessage());
         // Puedes generar una respuesta JSON, XML u otro formato según tus necesidades
+
+        System.out.println("ERROR GlobalExceptionHandler handleException");
         return new Respuesta<Excepcion>(null,0, excepcion.getMessage());
     }
     @ExceptionHandler(InvalidDataAccessResourceUsageException.class)
     public  Respuesta<Excepcion>handleInvalidDataAccessResourceUsageException(InvalidDataAccessResourceUsageException ex) {
         // Realiza el manejo de la excepción aquí
         Excepcion excepcion = new Excepcion(HttpStatus.INTERNAL_SERVER_ERROR,ex.getMessage());
+
+        System.out.println("ERROR GlobalExceptionHandler handleInvalidDataAccessResourceUsageException");
         return new Respuesta<Excepcion>(null,0, excepcion.getMessage());
     }
 

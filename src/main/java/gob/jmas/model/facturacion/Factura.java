@@ -48,17 +48,16 @@ public class Factura {
     private String nombre;
     @Column(nullable = false, length = 255)
     private String direccion;
-    @Column(nullable = false, length = 255)
-    private String colonia;
     @Column(nullable = false)
     private Integer caja;
     @Column(nullable = false, length = 10)
     private Integer referencia;
-    private Double monto;
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "forma_de_pago_id")
     private FormaDePago formaDePago;
     private LocalDate fechaDePago;
+    private Double monto;
+
     private LocalDateTime fechaDeCertificacion;
     @Column(nullable = false, length = 20)
     private Integer noCertificadoEmisor;

@@ -22,7 +22,7 @@ public class ConceptoDePago {
     private Factura factura;
     private Integer clave;
     private Integer conceptoFiscal;
-    private String descripcion;
+    private String concepto;
     private Double monto;
     private Double tasa;
 }

@@ -25,7 +25,7 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
                 .map(ConstraintViolation::getMessage)
                 .collect(Collectors.toList());
 
-
+        System.out.println("ERROR CustomExceptionHandler handleConstraintViolation");
         // Devuelve una respuesta con el cuerpo personalizado y el código de estado 400 (Bad Request)
         return ResponseEntity.badRequest().body(new Respuesta<String>(null,0,String.join(System.lineSeparator(), errors)));
 
