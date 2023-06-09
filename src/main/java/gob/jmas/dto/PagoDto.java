@@ -1,6 +1,7 @@
 package gob.jmas.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import gob.jmas.model.facturacion.FormaDePago;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -13,7 +14,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 public class PagoDto {
-    public PagoDto(String cuenta, String nombre, String direccion, Integer caja, Integer referencia, String formaDePago, LocalDate fechaDePago,List<ConceptoDePagoDto> conceptos) {
+    public PagoDto(String cuenta, String nombre, String direccion, Integer caja, Integer referencia, FormaDePago formaDePago, LocalDate fechaDePago,List<ConceptoDePagoDto> conceptos) {
         this.cuenta = cuenta;
         this.nombre = nombre;
         this.direccion = direccion;
@@ -29,9 +30,8 @@ public class PagoDto {
     private String direccion;
     private Integer caja;
     private Integer referencia;
-    private String formaDePago;
+    private FormaDePago formaDePago;
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "UTC")
     private LocalDate fechaDePago;
-
     List<ConceptoDePagoDto> conceptos;
 }

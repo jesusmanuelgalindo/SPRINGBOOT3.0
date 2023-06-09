@@ -20,6 +20,11 @@ public class FormaDePago {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+
+    private String claveComercial;
+
+    private String claveSat;
+
     private String descripcion;
 
 }

@@ -20,8 +20,8 @@ public class ConceptoDePago {
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "factura_id")
     private Factura factura;
-    private Integer clave;
-    private Integer conceptoFiscal;
+    private Integer claveComercial;
+    private Integer claveSat;
     private String concepto;
     private Double monto;
     private Double tasa;

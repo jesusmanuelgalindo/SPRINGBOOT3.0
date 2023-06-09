@@ -41,9 +41,9 @@ public class Pago {
     private String formaDePago;
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "UTC")
     private LocalDate fechaDePago;
-    private Integer clave;
-    private Integer conceptoFiscal;
-    private String concepto;
+    private Integer claveComercial;
+    private Integer claveSat;
+    private String descripcion;
     private Double monto;
     private Double tasa;
 

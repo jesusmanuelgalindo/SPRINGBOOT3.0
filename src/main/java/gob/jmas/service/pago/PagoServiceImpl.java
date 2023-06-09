@@ -3,7 +3,9 @@ package gob.jmas.service.pago;
 import gob.jmas.dto.ConceptoDePagoDto;
 import gob.jmas.dto.PagoDto;
 import gob.jmas.model.comercial.Pago;
+import gob.jmas.model.facturacion.FormaDePago;
 import gob.jmas.repository.comercial.PagoRepository;
+import gob.jmas.service.formaDePago.FormaDePagoService;
 import gob.jmas.utils.Excepcion;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,6 +18,8 @@ import java.util.List;
 public class PagoServiceImpl implements  PagoService{
     @Autowired
     private PagoRepository pagoRepository;
+    @Autowired
+    private FormaDePagoService formaDePagoService;
     @Override
     public PagoDto  detalleDePago(String cuenta, Integer caja, Integer referencia) throws Excepcion
     {
@@ -28,16 +32,24 @@ public class PagoServiceImpl implements  PagoService{
             pagoDto.setDireccion(pagos.get(0).getDireccion());
             pagoDto.setCaja(pagos.get(0).getCaja());
             pagoDto.setReferencia(pagos.get(0).getReferencia());
-            pagoDto.setFormaDePago(pagos.get(0).getFormaDePago());
+
+
+            pagoDto.setFormaDePago(formaDePagoService.getFormaDePagoByClaveComercial(pagos.get(0).getFormaDePago()));
+
+
+
+
+
+
             pagoDto.setFechaDePago(pagos.get(0).getFechaDePago());
 
             List<ConceptoDePagoDto> conceptosDePagoDto = new ArrayList<>();
 
             for (Pago pago : pagos) {
                 ConceptoDePagoDto conceptoDePagoDto = new ConceptoDePagoDto();
-                conceptoDePagoDto.setClave(pago.getClave());
-                conceptoDePagoDto.setConceptoFiscal(pago.getConceptoFiscal());
-                conceptoDePagoDto.setConcepto(pago.getConcepto());
+                conceptoDePagoDto.setClaveComercial(pago.getClaveComercial());
+                conceptoDePagoDto.setClaveSat(pago.getClaveSat());
+                conceptoDePagoDto.setDescripcion(pago.getDescripcion());
                 conceptoDePagoDto.setMonto(pago.getMonto());
                 conceptoDePagoDto.setTasa(pago.getTasa());
                 conceptosDePagoDto.add(conceptoDePagoDto);

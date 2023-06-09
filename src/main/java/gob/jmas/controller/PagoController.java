@@ -8,9 +8,11 @@ import gob.jmas.utils.Excepcion;
 import gob.jmas.utils.Respuesta;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -28,9 +30,12 @@ public class PagoController {
         String nombreDelEndpoint="/pago/buscar/";
         try
         {
-            PagoDto  detalleDePago= pagoService.detalleDePago(pagoBuscarDto.getCuenta(), pagoBuscarDto.getCaja(), pagoBuscarDto.getReferencia());
+            PagoDto  pagoDto= pagoService.detalleDePago(pagoBuscarDto.getCuenta(), pagoBuscarDto.getCaja(), pagoBuscarDto.getReferencia());
 
-            return ResponseEntity.ok(new Respuesta<PagoDto >(detalleDePago,1,""));
+            if(pagoDto.getFechaDePago().getMonthValue() == LocalDate.now().getMonthValue() && pagoDto.getFechaDePago().getYear() == LocalDate.now().getYear())
+                return ResponseEntity.ok(new Respuesta<PagoDto >(pagoDto,1,""));
+            else
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new Respuesta<PagoDto>  (null,0,"EL TICKET DE PAGO CORRESPONDE A UN MES ANTERIOR"));
         }
         catch (Excepcion e)
         {
