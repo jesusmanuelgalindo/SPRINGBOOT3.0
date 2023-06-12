@@ -1,35 +1,93 @@
 package gob.jmas.utils;
 
-
-import org.springframework.dao.InvalidDataAccessResourceUsageException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.validation.BindException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.http.ResponseEntity;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
+import org.springframework.web.servlet.NoHandlerFoundException;
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.ConstraintViolationException;
+import javax.validation.ConstraintViolation;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
+    //ConstraintViolationException
 
-    @ExceptionHandler(Exception.class)
-    public Respuesta<Excepcion> handleException(Exception ex) {
-        // Aquí puedes personalizar la estructura y el contenido de la respuesta de la excepción
-        // Puedes usar tu excepción personalizada Excepcion si es necesario
+    @Autowired
+    private HttpServletRequest request;
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<Respuesta<String>> handleConstraintViolationException(ConstraintViolationException ex) {
+        //Se lanza cuando se viola una restricción de validación en una entidad o DTO
+        String nombreDelEndpoint=request.getRequestURI();
+        String errorMessage = ex.getConstraintViolations().stream()
+                .map(ConstraintViolation::getMessage)
+                .findFirst()
+                .orElse("Error desconocido");
 
-        Excepcion excepcion = new Excepcion(HttpStatus.INTERNAL_SERVER_ERROR,ex.getMessage());
-        // Puedes generar una respuesta JSON, XML u otro formato según tus necesidades
+        Respuesta<String> respuesta = new Respuesta<String>(null,0,errorMessage,nombreDelEndpoint);
 
-        System.out.println("ERROR GlobalExceptionHandler handleException");
-        return new Respuesta<Excepcion>(null,0, excepcion.getMessage());
-    }
-    @ExceptionHandler(InvalidDataAccessResourceUsageException.class)
-    public  Respuesta<Excepcion>handleInvalidDataAccessResourceUsageException(InvalidDataAccessResourceUsageException ex) {
-        // Realiza el manejo de la excepción aquí
-        Excepcion excepcion = new Excepcion(HttpStatus.INTERNAL_SERVER_ERROR,ex.getMessage());
-
-        System.out.println("ERROR GlobalExceptionHandler handleInvalidDataAccessResourceUsageException");
-        return new Respuesta<Excepcion>(null,0, excepcion.getMessage());
+        return ResponseEntity.badRequest().body(respuesta);
     }
 
+    @ExceptionHandler(BindException.class)
+    public ResponseEntity<Respuesta<String>> handleBindException(BindException ex) {
+        //se produce cuando hay errores de enlace de datos durante la validación de formularios en Spring.
+        //Esta excepción se lanza cuando no se puede realizar el enlace de los datos recibidos en la solicitud a los objetos de dominio correspondientes.
+        String nombreDelEndpoint=request.getRequestURI();
+        String errorMessage = ex.getBindingResult().getAllErrors().stream()
+                .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                .findFirst()
+                .orElseGet(() -> "Error desconocido");
 
-    // Puedes agregar otros métodos handleException para manejar excepciones específicas según tus necesidades
-    // Por ejemplo, handleNotFoundException, handleValidationException, etc.
+        Respuesta<String> respuesta = new Respuesta<String>(null,0,errorMessage,nombreDelEndpoint);
+        return ResponseEntity.badRequest().body(respuesta);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Respuesta<String>> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
+        //se produce cuando falla la validación de los argumentos de un método anotado con @Valid en un controlador de Spring
+        String nombreDelEndpoint=request.getRequestURI();
+        String errorMessage = ex.getBindingResult().getAllErrors().stream()
+                .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                .findFirst()
+                .orElseGet(() -> "Error desconocido");
+
+        Respuesta<String> respuesta = new Respuesta<String>(null,0,errorMessage,nombreDelEndpoint);
+        return ResponseEntity.badRequest().body(respuesta);
+    }
+
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<Respuesta<String>> handleRuntimeException(RuntimeException ex) {
+        //Clase base para todas las excepciones no verificadas en Java.
+        //Puede ser generadas por errores de lógica del programa, problemas de programación, condiciones inesperadas o situaciones excepcionales.
+        String nombreDelEndpoint=request.getRequestURI();
+        String errorMessage = ex.getMessage();
+        Respuesta<String> respuesta = new Respuesta<String>(null,0,errorMessage,nombreDelEndpoint);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(respuesta);
+    }
+
+    @ExceptionHandler(NoHandlerFoundException.class)
+    public ResponseEntity<Respuesta<String>> handleNoHandlerFoundException(NoHandlerFoundException ex) {
+        //Se produce cuando no se encuentra ningún controlador (handler) adecuado para la solicitud realizada.
+        //Esto puede ocurrir cuando se solicita una URL que no coincide con ninguna ruta definida en la aplicación.
+        String nombreDelEndpoint=request.getRequestURI();
+        String errorMessage = "El endpoint solicitado no existe.";
+        Respuesta<String> respuesta = new Respuesta<String>(null,0,errorMessage,nombreDelEndpoint);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(respuesta);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<Respuesta<String>> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
+        //Se lanza cuando no se puede leer o deserializar correctamente el cuerpo (payload) de la solicitud HTTP.
+        //Puede ocurrir cuando el cuerpo de la solicitud está en un formato incorrecto o no cumple con el tipo de datos esperado.
+        String nombreDelEndpoint=request.getRequestURI();
+        String errorMessage = ex.getMessage();
+        Respuesta<String> respuesta = new Respuesta<String>(null,0,errorMessage,nombreDelEndpoint);
+        return ResponseEntity.badRequest().body(respuesta);
+    }
 }

@@ -17,16 +17,20 @@ public class Respuesta<T>
     private String mensaje;
 
     private static final Logger logger = LoggerFactory.getLogger(Respuesta.class);
-    public Respuesta( T datos,Integer numeroDeRegistros, String mensaje) {
+    public Respuesta( T datos,Integer numeroDeRegistros, String mensaje,String endpoint) {
         this.numeroDeRegistros = numeroDeRegistros;
         this.mensaje = mensaje;
         this.datos = datos;
         String bitacora="\n"+
                         "----------------------SOLICITUD A ENDPOINT---------------------------"+"\n"+
+                        "Endpoint            : "+endpoint+"\n"+
                         "Registros enviados  : "+numeroDeRegistros.toString()+"\n"+
                         "Mensaje             : "+mensaje+"\n"+
                         "---------------------------------------------------------------------"+"\n";
-        logger.info(bitacora);
+        if(numeroDeRegistros==0)
+            logger.warn(bitacora);
+        else
+            logger.info(bitacora);
 
     }
 }

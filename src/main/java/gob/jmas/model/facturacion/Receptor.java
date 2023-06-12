@@ -18,7 +18,6 @@ public class Receptor {
         this.setId(id);
     }
 
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;

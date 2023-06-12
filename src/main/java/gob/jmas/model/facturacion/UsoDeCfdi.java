@@ -20,6 +20,9 @@ public class UsoDeCfdi {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+
+    private String clave;
+
     private String descripcion;
 
 }

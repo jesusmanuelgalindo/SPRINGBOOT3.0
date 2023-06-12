@@ -59,7 +59,7 @@ public class PagoServiceImpl implements  PagoService{
             return pagoDto;
         }
         else  {
-        throw new Excepcion(HttpStatus.NOT_FOUND,"NO EXISTE NINGUN REGISTRO DE PAGO EN LA BASE DE DATOS QUE COINCIDA CON LOS DATOS INGRESADOS (CAJA:'"+caja.toString()+"',REFERENCIA:'"+referencia.toString()+"',CUENTA:'"+cuenta+"')");
+        throw new Excepcion(HttpStatus.NOT_FOUND,"No existe ningun registro de pago en la base de datos que coincida con los datos ingresados (CAJA:'"+caja.toString()+"',REFERENCIA:'"+referencia.toString()+"',CUENTA:'"+cuenta+"')");
     }
 
     }

@@ -26,7 +26,7 @@ public class RegimenFiscalServiceImpl implements RegimenFiscalService {
             return optionalRegimenFiscal.get();
         }
         else {
-            throw new Excepcion(HttpStatus.NOT_FOUND,"NO EXISTE NINGUN REGISTRO EN LA BASE DE DATOS DE REGIMENES FISCALES QUE COINCIDA CON EL ID '"+id.toString()+"'");
+            throw new Excepcion(HttpStatus.NOT_FOUND,"No existe ningun registro en la base de datos de regimenes fiscales que coincida con el id '"+id.toString()+"'");
         }
     }
 
@@ -39,7 +39,7 @@ public class RegimenFiscalServiceImpl implements RegimenFiscalService {
         }
         catch (Exception ex)
         {
-            throw new Excepcion(HttpStatus.INTERNAL_SERVER_ERROR,"ERROR AL OBTENER REGIMENES FISCALES:'"+ex.getMessage()+"'");
+            throw new Excepcion(HttpStatus.INTERNAL_SERVER_ERROR,"Error al obtener regimenes fiscales:'"+ex.getMessage()+"'");
         }
     }
 

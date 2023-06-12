@@ -31,7 +31,7 @@ public class ReceptorServiceImpl implements  ReceptorService {
             return optionalReceptor.get();
         }
         else {
-            throw new Excepcion(HttpStatus.NO_CONTENT,"NO EXISTE NINGUN REGISTRO EN LA BASE DE DATOS DE RECEPTORES QUE COINCIDA CON EL ID '"+id.toString()+"'");
+            throw new Excepcion(HttpStatus.NO_CONTENT,"No existe ningun registro en la base de datos de receptores qie coincida con el id '"+id.toString()+"'");
         }
     }
 
@@ -43,7 +43,7 @@ public class ReceptorServiceImpl implements  ReceptorService {
             return optionalReceptor.get();
         }
         else {
-            throw new Excepcion(HttpStatus.NOT_FOUND,"NO EXISTE NINGUN REGISTRO EN LA BASE DE DATOS DE RECEPTORES QUE COINCIDA CON EL RFC '"+rfc+"'");
+            throw new Excepcion(HttpStatus.NOT_FOUND,"No existe ningun registro en la base de datos de receptores que coincida con el RFC '"+rfc+"'");
         }
     }
 
@@ -52,7 +52,7 @@ public class ReceptorServiceImpl implements  ReceptorService {
     public Receptor createReceptor(Receptor receptor) throws Excepcion {
         Optional<Receptor> optionalReceptor = receptorRepository.findByRfc(receptor.getRfc());
         if (optionalReceptor.isPresent()) {
-            throw new Excepcion(HttpStatus.CONFLICT,"EL RFC '"+receptor.getRfc()+"' YA FUÉ REGISTRADO ANTERIORMENTE EN LA BASE DE DATOS");
+            throw new Excepcion(HttpStatus.CONFLICT,"El RFC '"+receptor.getRfc()+"' Ya fué registrado anteriormente en la base de datos");
         }
         else
         {
@@ -99,7 +99,7 @@ public class ReceptorServiceImpl implements  ReceptorService {
         }
         else
         {
-            throw new Excepcion(HttpStatus.NOT_FOUND,"NO SE REALIZO ACTUALIZACION DEBIDO A QUE NO EXISTE UN RECEPTOR CON EL ID '"+receptor.getId()+"' EN LA BASE DE DATOS");
+            throw new Excepcion(HttpStatus.NOT_FOUND,"No se realizo actualizacion debido a que no existe un receptor con el id '"+receptor.getId()+"' en la base de datos");
         }
 
     }
@@ -114,7 +114,7 @@ public class ReceptorServiceImpl implements  ReceptorService {
         if (optionalReceptor.isPresent()) {
             receptorRepository.delete(optionalReceptor.get());
         } else {
-            throw new RuntimeException("receptor no encontrado");
+            throw new RuntimeException("Receptor no encontrado");
         }
     }
 }

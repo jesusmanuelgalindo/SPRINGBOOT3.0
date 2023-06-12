@@ -69,7 +69,7 @@ public class FacturaServiceImpl implements FacturaService {
         }
         else
         {
-            throw new RuntimeException("Factura no Encontrada");
+            throw new RuntimeException("Factura no encontrada");
            // throw new NotFoundException("No se encontró la factura con el número y UUID especificados");
         }
     }
