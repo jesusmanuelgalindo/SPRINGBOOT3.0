@@ -1,5 +1,6 @@
 package gob.jmas.model.facturacion;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -27,6 +28,7 @@ public class Factura {
 
     @Column(nullable = false, length = 36)
     private String uuid;
+    @JsonFormat(pattern = "yyyy-MM-dd hh:mm", timezone = "UTC")
     private LocalDateTime fechaFacturacion;
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "uso_de_cfdi_id")
@@ -56,8 +58,7 @@ public class Factura {
     @JoinColumn(name = "forma_de_pago_id")
     private FormaDePago formaDePago;
     private LocalDate fechaDePago;
-    private Double monto;
-
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "UTC")
     private LocalDateTime fechaDeCertificacion;
     @Column(nullable = false, length = 20)
     private Integer noCertificadoEmisor;
@@ -65,6 +66,7 @@ public class Factura {
     private Integer noCertificadoSat;
     private String emailRegistrado;
     private String emailAdicional;
+    private Boolean activa;
     @OneToMany(mappedBy = "factura", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ConceptoDePago> conceptos;
 }

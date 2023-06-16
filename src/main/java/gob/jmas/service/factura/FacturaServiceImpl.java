@@ -1,9 +1,12 @@
 package gob.jmas.service.factura;
 
 import gob.jmas.model.facturacion.Factura;
+import gob.jmas.model.facturacion.Receptor;
 import gob.jmas.repository.facturacion.FacturaRepository;
 import gob.jmas.utils.EnviarEmail;
+import gob.jmas.utils.Excepcion;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,6 +21,18 @@ public class FacturaServiceImpl implements FacturaService {
     @Autowired
     private EnviarEmail enviarEmail;
 
+
+    @Override
+    public Factura findFacturaByCuentaCajaReferencia(String cuenta, Integer caja, Integer referencia)
+    {
+        Optional<Factura> optionalFactura = facturaRepository.findFacturaByCuentaCajaReferencia(cuenta,caja,referencia);
+        if (optionalFactura.isPresent()) {
+            return optionalFactura.get();
+        }
+        else {
+            throw new Excepcion(HttpStatus.NOT_FOUND,"No existe ningun registro en la base de datos de facturas que coincida con los filtros cuenta,caja,referencia ('"+cuenta+"," +caja+","+  referencia+")'");
+        }
+    }
 
     @Override
     public Factura getFacturaById(Integer id) {
@@ -57,7 +72,6 @@ public class FacturaServiceImpl implements FacturaService {
             facturaExistente.setNombre(facturaActualizada.getNombre());
             facturaExistente.setCaja(facturaActualizada.getCaja());
             facturaExistente.setReferencia(facturaActualizada.getReferencia());
-            facturaExistente.setMonto(facturaActualizada.getMonto());
             facturaExistente.setFormaDePago(facturaActualizada.getFormaDePago());
             facturaExistente.setFechaDePago(facturaActualizada.getFechaDePago());
             facturaExistente.setEmailRegistrado(facturaActualizada.getEmailRegistrado());

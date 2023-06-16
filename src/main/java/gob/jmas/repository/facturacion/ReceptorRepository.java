@@ -12,4 +12,6 @@ public interface ReceptorRepository extends JpaRepository<Receptor, Integer> {
 
     Optional<Receptor> findByRfc(String rfc);
 
+    Optional<Receptor> findByRazonSocial(String razonSocial);
+
 }
