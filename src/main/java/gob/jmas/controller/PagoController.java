@@ -38,35 +38,21 @@ public class PagoController {
 
     @PostMapping("/buscar")
     @ApiOperation(value = "Localiza un ticket de pago en la base de datos")
-    public ResponseEntity<Respuesta<?>> buscarPago(@Valid @RequestBody PagoBuscarDto pagoBuscarDto)
+    public ResponseEntity<Respuesta<PagoDto>> buscarPago(@Valid @RequestBody PagoBuscarDto pagoBuscarDto)
     {
         String nombreDelEndpoint=request.getRequestURI();
         try
         {
             PagoDto  pagoDto= pagoService.detalleDePago(pagoBuscarDto.getCuenta(), pagoBuscarDto.getCaja(), pagoBuscarDto.getReferencia());
-            try
-            {
-                //Verifica si no ha sido facturado con anterioridad
-                Factura facturaLocalizada = facturaService.findFacturaByCuentaCajaReferencia(pagoBuscarDto.getCuenta(),pagoBuscarDto.getCaja(), pagoBuscarDto.getReferencia());
-                return ResponseEntity.status(HttpStatus.ALREADY_REPORTED).body(new Respuesta<Factura>(null,1,"El Ticket #"+pagoBuscarDto.getReferencia()+" ya fue facturado con anterioridad y la factura fue enviada a: "+censurar.censurarEmail(facturaLocalizada.getEmailRegistrado() ) + (facturaLocalizada.getEmailAdicional().length()>0?" y a "+censurar.censurarEmail(facturaLocalizada.getEmailAdicional()) :""),nombreDelEndpoint));
-            }
-            catch (Excepcion e)
-            {
-                //Si el pago no ha sido facturado , verifica la fecha del ticket
-                if(pagoDto.getFechaDePago().getMonthValue() == LocalDate.now().getMonthValue() && pagoDto.getFechaDePago().getYear() == LocalDate.now().getYear())
-                {
-                    //Cuando es del mes actual lo Factura
-                    return ResponseEntity.ok(new Respuesta<PagoDto>(pagoDto, 1, "", nombreDelEndpoint));
-                }
-                else
-                {
-                    //Si es de otro mes lo rechaza
-                    return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new Respuesta<PagoDto>(null, 0, "El ticket de pago corresponde a un mes anterior", nombreDelEndpoint));
-                }
-            }
+            if(pagoDto==null)
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Respuesta<PagoDto>  (null,0,"No existe ningun registro de pago en la base de datos que coincida con los datos ingresados (CAJA:'"+pagoBuscarDto.getCaja().toString()+"',REFERENCIA:'"+pagoBuscarDto.getReferencia().toString()+"',CUENTA:'"+pagoBuscarDto.getCuenta()+"')",nombreDelEndpoint));
+            else
+                return ResponseEntity.ok(new Respuesta<PagoDto>(pagoDto, 1, "", nombreDelEndpoint));
+
         }
         catch (Excepcion e)
         {
+            //Cualquier otra excepcion la regresa en la respuesta
             return ResponseEntity.status(e.getTipo()).body(new Respuesta<PagoDto>  (null,0,e.getMessage(),nombreDelEndpoint));
         }
     }

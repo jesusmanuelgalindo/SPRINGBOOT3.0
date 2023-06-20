@@ -18,11 +18,6 @@ public class FormaDePagoServiceImpl implements FormaDePagoService{
     public FormaDePago getFormaDePagoByClaveComercial(String claveComercial) throws Excepcion
     {
         Optional<FormaDePago> optionalFormaDePago = formaDePagoRepository.findByClaveComercial(claveComercial);
-        if (optionalFormaDePago.isPresent()) {
-            return optionalFormaDePago.get();
-        }
-        else {
-            throw new Excepcion(HttpStatus.NOT_FOUND,"La forma de Pago '"+claveComercial+"' registrada en el Ticket,no existe en el Catálogo del SAT. Intente nuevamente. Si el problema persiste reportelo a JMAS Parral");
-        }
+        return optionalFormaDePago.orElse(null);
     }
 }

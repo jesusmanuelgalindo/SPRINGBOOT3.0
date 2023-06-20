@@ -42,7 +42,10 @@ public class ReceptorController {
         try
         {
             Receptor receptor = receptorService.getReceptorByRfc(rfc);
-            return ResponseEntity.ok(new Respuesta<ReceptorDto>(new ReceptorDto(receptor),1,"",nombreDelEndpoint));
+            if(receptor!=null)
+                return ResponseEntity.ok(new Respuesta<ReceptorDto>(new ReceptorDto(receptor),1,"",nombreDelEndpoint));
+            else
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Respuesta<ReceptorDto>(null,0,"No existe ningun registro en la base de datos de receptores que coincida con el RFC '"+rfc+"'",nombreDelEndpoint));
         }
         catch (Excepcion e)
         {
@@ -64,6 +67,7 @@ public class ReceptorController {
             receptor.setRegimenFiscal(new RegimenFiscal(receptorDto.getIdRegimenFiscal()));
             receptor.setEmail(receptorDto.getEmail());
             receptor = receptorService.createReceptor(receptor);
+
             return ResponseEntity.ok(new Respuesta<ReceptorDto>(new ReceptorDto(receptor),1,"",nombreDelEndpoint));
         }
         catch (Excepcion e)

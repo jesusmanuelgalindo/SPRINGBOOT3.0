@@ -23,25 +23,13 @@ public class UsoDeCfdiServiceImpl implements UsoDeCfdiService {
     public UsoDeCfdi getUsoDeCfdiById(Integer id) throws Excepcion
     {
         Optional<UsoDeCfdi> optionalUsoDeCfdi = usoDeCfdiRepository.findById(id);
-        if (optionalUsoDeCfdi.isPresent()) {
-            return optionalUsoDeCfdi.get();
-        }
-        else {
-            throw new Excepcion(HttpStatus.NOT_FOUND,"No existe ningun registro en la base de datos de usos de CFDI que coincida con el id '"+id.toString()+"'");
-        }
+        return optionalUsoDeCfdi.orElse(null);
     }
 
     @Override
     public List<UsoDeCfdi> findAllUsoDeCfdi() throws Excepcion
     {
-        try
-        {
-            return usoDeCfdiRepository.findAll();
-        }
-        catch (Exception ex)
-        {
-            throw new Excepcion(HttpStatus.INTERNAL_SERVER_ERROR,"Error al obtener usos de CFDI:'"+ex.getMessage()+"'");
-        }
+        return usoDeCfdiRepository.findAll();
     }
 
 }

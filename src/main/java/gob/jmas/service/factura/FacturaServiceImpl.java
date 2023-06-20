@@ -25,23 +25,14 @@ public class FacturaServiceImpl implements FacturaService {
     @Override
     public Factura findFacturaByCuentaCajaReferencia(String cuenta, Integer caja, Integer referencia)
     {
-        Optional<Factura> optionalFactura = facturaRepository.findFacturaByCuentaCajaReferencia(cuenta,caja,referencia);
-        if (optionalFactura.isPresent()) {
-            return optionalFactura.get();
-        }
-        else {
-            throw new Excepcion(HttpStatus.NOT_FOUND,"No existe ningun registro en la base de datos de facturas que coincida con los filtros cuenta,caja,referencia ('"+cuenta+"," +caja+","+  referencia+")'");
-        }
+        Optional<Factura> optionalFactura = facturaRepository.findFacturaByCuentaCajaReferencia(cuenta, caja, referencia);
+        return optionalFactura.orElse(null);
     }
 
     @Override
     public Factura getFacturaById(Integer id) {
         Optional<Factura> optionalFactura = facturaRepository.findById(id);
-        if (optionalFactura.isPresent()) {
-            return optionalFactura.get();
-        } else {
-            throw new RuntimeException("Factura no encontrada");
-        }
+        return optionalFactura.orElse(null);
     }
 
     @Override
@@ -83,8 +74,7 @@ public class FacturaServiceImpl implements FacturaService {
         }
         else
         {
-            throw new RuntimeException("Factura no encontrada");
-           // throw new NotFoundException("No se encontró la factura con el número y UUID especificados");
+            throw new Excepcion(HttpStatus.NOT_FOUND,"Factura NO Encontrada. Intente nuevamente. Si el problema persiste reportelo a JMAS Parral");
         }
     }
 
@@ -94,7 +84,8 @@ public class FacturaServiceImpl implements FacturaService {
         if (optionalFactura.isPresent()) {
             facturaRepository.delete(optionalFactura.get());
         } else {
-            throw new RuntimeException("Factura no encontrada");
+            throw new Excepcion(HttpStatus.NOT_FOUND,"Factura NO Encontrada. Intente nuevamente. Si el problema persiste reportelo a JMAS Parral");
+
         }
     }
     @Override

@@ -22,25 +22,13 @@ public class RegimenFiscalServiceImpl implements RegimenFiscalService {
     public RegimenFiscal getRegimenFiscalById(Integer id) throws Excepcion
     {
         Optional<RegimenFiscal> optionalRegimenFiscal = regimenFiscalRepository.findById(id);
-        if (optionalRegimenFiscal.isPresent()) {
-            return optionalRegimenFiscal.get();
-        }
-        else {
-            throw new Excepcion(HttpStatus.NOT_FOUND,"No existe ningun registro en la base de datos de regimenes fiscales que coincida con el id '"+id.toString()+"'");
-        }
+        return optionalRegimenFiscal.orElse(null);
     }
 
     @Override
     public List<RegimenFiscal> findAllRegimenFiscal() throws Excepcion
     {
-        try
-        {
-            return regimenFiscalRepository.findAll();
-        }
-        catch (Exception ex)
-        {
-            throw new Excepcion(HttpStatus.INTERNAL_SERVER_ERROR,"Error al obtener regimenes fiscales:'"+ex.getMessage()+"'");
-        }
+        return regimenFiscalRepository.findAll();
     }
 
 }
