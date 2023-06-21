@@ -29,22 +29,22 @@ public class GlobalExceptionHandler {
     private static final Logger logger = LoggerFactory.getLogger(Respuesta.class);
     @Autowired
     private HttpServletRequest request;
-    @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<Respuesta<String>> handleConstraintViolationException(ConstraintViolationException ex) {
-        Throwable rootCause = ExceptionUtils.getRootCause(ex);
-        logger.warn("[ConstraintViolationException] "+ex.getMessage());
-        logger.warn("[ConstraintViolationException] "+rootCause.getMessage());
-        //Se lanza cuando se viola una restricción de validación en una entidad o DTO
-        String nombreDelEndpoint=request.getRequestURI();
-        String errorMessage = ex.getConstraintViolations().stream()
-                .map(ConstraintViolation::getMessage)
-                .findFirst()
-                .orElse("Error desconocido");
-
-        Respuesta<String> respuesta = new Respuesta<String>(null,0,errorMessage,nombreDelEndpoint);
-
-        return ResponseEntity.badRequest().body(respuesta);
-    }
+//    @ExceptionHandler(ConstraintViolationException.class)
+//    public ResponseEntity<Respuesta<String>> handleConstraintViolationException(ConstraintViolationException ex) {
+//        Throwable rootCause = ExceptionUtils.getRootCause(ex);
+//        logger.warn("[ConstraintViolationException] "+ex.getMessage());
+//        logger.warn("[ConstraintViolationException] "+rootCause.getMessage());
+//        //Se lanza cuando se viola una restricción de validación en una entidad o DTO
+//        String nombreDelEndpoint=request.getRequestURI();
+//        String errorMessage = ex.getConstraintViolations().stream()
+//                .map(ConstraintViolation::getMessage)
+//                .findFirst()
+//                .orElse("Error desconocido");
+//
+//        Respuesta<String> respuesta = new Respuesta<String>(null,0,errorMessage,nombreDelEndpoint);
+//
+//        return ResponseEntity.badRequest().body(respuesta);
+//    }
 
     @ExceptionHandler(BindException.class)
     public ResponseEntity<Respuesta<String>> handleBindException(BindException ex) {
@@ -79,19 +79,19 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(respuesta);
     }
 
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<Respuesta<String>> handleRuntimeException(RuntimeException ex) {
-        Throwable rootCause = ExceptionUtils.getRootCause(ex);
-        logger.error("[RuntimeException] "+ex.getMessage());
-        logger.error("[RuntimeException] "+rootCause.getMessage());
-        //Clase base para todas las excepciones no verificadas en Java.
-        //Puede ser generadas por errores de lógica del programa, problemas de programación, condiciones inesperadas o situaciones excepcionales.
-        String nombreDelEndpoint=request.getRequestURI();
-        String errorMessage = ex.getMessage();
-        System.out.println("RUNTIME EXCEPTION");
-        Respuesta<String> respuesta = new Respuesta<String>(null,0,errorMessage,nombreDelEndpoint);
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(respuesta);
-    }
+//    @ExceptionHandler(RuntimeException.class)
+//    public ResponseEntity<Respuesta<String>> handleRuntimeException(RuntimeException ex) {
+//        Throwable rootCause = ExceptionUtils.getRootCause(ex);
+//        logger.error("[RuntimeException] "+ex.getMessage());
+//        logger.error("[RuntimeException] "+rootCause.getMessage());
+//        //Clase base para todas las excepciones no verificadas en Java.
+//        //Puede ser generadas por errores de lógica del programa, problemas de programación, condiciones inesperadas o situaciones excepcionales.
+//        String nombreDelEndpoint=request.getRequestURI();
+//        String errorMessage = ex.getMessage();
+//        System.out.println("RUNTIME EXCEPTION");
+//        Respuesta<String> respuesta = new Respuesta<String>(null,0,errorMessage,nombreDelEndpoint);
+//        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(respuesta);
+//    }
 
     @ExceptionHandler(NoHandlerFoundException.class)
     public ResponseEntity<Respuesta<String>> handleNoHandlerFoundException(NoHandlerFoundException ex) {
@@ -126,19 +126,20 @@ public class GlobalExceptionHandler {
     }
 
 
-    @ExceptionHandler(NestedRuntimeException.class)
-    public ResponseEntity<Respuesta<String>> handleNestedRuntimeException(NestedRuntimeException ex) {
-        Throwable rootCause = ExceptionUtils.getRootCause(ex);
-        logger.error("[NestedRuntimeException] "+ex.getMessage());
-        logger.error("[NestedRuntimeException] "+rootCause.getMessage());
-            // Lógica para manejar la excepción SQLGrammarException
-            String nombreDelEndpoint = request.getRequestURI();
-            String errorMessage = "Error al ejecutar la consulta en el servidor de Bases de datos";
+//    @ExceptionHandler(NestedRuntimeException.class)
+//    public ResponseEntity<Respuesta<String>> handleNestedRuntimeException(NestedRuntimeException ex) {
+//        Throwable rootCause = ExceptionUtils.getRootCause(ex);
+//        logger.error("[NestedRuntimeException] "+ex.getMessage());
+//        logger.error("[NestedRuntimeException] "+rootCause.getMessage());
+//            // Lógica para manejar la excepción SQLGrammarException
+//            String nombreDelEndpoint = request.getRequestURI();
+//            String errorMessage = "Error al ejecutar la consulta en el servidor de Bases de datos";
+//
+//            Respuesta<String> respuesta = new Respuesta<String>(null, 0, errorMessage, nombreDelEndpoint);
+//            return ResponseEntity.internalServerError().body(respuesta);
+//
+//    }
 
-            Respuesta<String> respuesta = new Respuesta<String>(null, 0, errorMessage, nombreDelEndpoint);
-            return ResponseEntity.internalServerError().body(respuesta);
-
-    }
 //
 //    @ExceptionHandler(InvalidFormatException.class)
 //    public ResponseEntity<Respuesta<String>> handleInvalidFormatException(InvalidFormatException ex) {

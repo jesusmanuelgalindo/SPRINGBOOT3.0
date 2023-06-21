@@ -1,14 +1,26 @@
 package gob.jmas.service.factura;
 
-import gob.jmas.model.facturacion.Factura;
-import gob.jmas.model.facturacion.Receptor;
+import gob.jmas.dto.ConceptoDePagoDto;
+import gob.jmas.dto.FacturaDto;
+import gob.jmas.dto.NuevaFacturaDto;
+import gob.jmas.dto.PagoDto;
+import gob.jmas.model.comercial.Pago;
+import gob.jmas.model.facturacion.*;
+import gob.jmas.repository.comercial.PagoRepository;
 import gob.jmas.repository.facturacion.FacturaRepository;
-import gob.jmas.utils.EnviarEmail;
-import gob.jmas.utils.Excepcion;
+import gob.jmas.service.formaDePago.FormaDePagoService;
+import gob.jmas.service.receptor.ReceptorService;
+import gob.jmas.service.usoDeCfdi.UsoDeCfdiService;
+import gob.jmas.utils.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.Column;
+import javax.persistence.NonUniqueResultException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,10 +29,75 @@ public class FacturaServiceImpl implements FacturaService {
 
     @Autowired
     private FacturaRepository facturaRepository;
-
+    @Autowired
+    private PagoRepository pagoRepository;
     @Autowired
     private EnviarEmail enviarEmail;
 
+    @Autowired
+    UsoDeCfdiService usoDeCfdiService;
+
+    @Autowired
+    private FormaDePagoService formaDePagoService;
+
+    @Autowired
+    ReceptorService receptorService;
+
+    @Autowired
+    Censurar censurar;
+
+    @Autowired
+    Convertir convertir;
+    @Override
+    public PagoDto  detalleDePago(String cuenta, Integer caja, Integer referencia ) throws Excepcion {
+
+        //Se trae los registros de la base de datos
+        List<Pago> pagos = pagoRepository.consultarDetalleDePago(cuenta, caja, referencia);
+
+        if (pagos.size() == 0)
+            return null;
+
+        //Verifica si no ha sido facturado con anterioridad
+        Factura facturaLocalizada = findFacturaByCuentaCajaReferencia(cuenta, caja, referencia);
+        if (facturaLocalizada != null)
+            throw new Excepcion(HttpStatus.ALREADY_REPORTED, "El Ticket #" + referencia + " ya fue facturado con anterioridad y la factura fue enviada a: " + censurar.censurarEmail(facturaLocalizada.getEmailRegistrado()) + (facturaLocalizada.getEmailAdicional().length() > 0 ? " y a " + censurar.censurarEmail(facturaLocalizada.getEmailAdicional()) : ""));
+
+        //Verifica que la fecha del ticket sea del mes actual
+        if (pagos.get(0).getFechaDePago().getMonthValue() != LocalDate.now().getMonthValue() || pagos.get(0).getFechaDePago().getYear() != LocalDate.now().getYear())
+            throw new Excepcion(HttpStatus.FORBIDDEN, "El ticket de pago corresponde a un mes anterior");
+
+
+        //Prepara los datos que va devolver
+        PagoDto pagoDto = new PagoDto();
+        pagoDto.setCuenta(pagos.get(0).getCuenta());
+        pagoDto.setNombre(pagos.get(0).getNombre());
+        pagoDto.setDireccion(pagos.get(0).getDireccion());
+        pagoDto.setCaja(pagos.get(0).getCaja());
+        pagoDto.setReferencia(pagos.get(0).getReferencia());
+
+        FormaDePago formaDePago = formaDePagoService.getFormaDePagoByClaveComercial(pagos.get(0).getFormaDePago());
+        if (formaDePago == null)
+            throw new Excepcion(HttpStatus.NOT_FOUND, "La forma de Pago '" + pagos.get(0).getFormaDePago() + "' registrada en el Ticket,no existe en el Catálogo del SAT. Intente nuevamente. Si el problema persiste reportelo a JMAS Parral");
+        else
+            pagoDto.setFormaDePago(formaDePago);
+
+
+        pagoDto.setFechaDePago(pagos.get(0).getFechaDePago());
+
+        List<ConceptoDePagoDto> conceptosDePagoDto = new ArrayList<>();
+
+        for (Pago pago : pagos) {
+            ConceptoDePagoDto conceptoDePagoDto = new ConceptoDePagoDto();
+            conceptoDePagoDto.setClaveComercial(pago.getClaveComercial());
+            conceptoDePagoDto.setClaveSat(pago.getClaveSat());
+            conceptoDePagoDto.setDescripcion(pago.getDescripcion());
+            conceptoDePagoDto.setMonto(pago.getMonto());
+            conceptoDePagoDto.setTasa(pago.getTasa());
+            conceptosDePagoDto.add(conceptoDePagoDto);
+        }
+        pagoDto.setConceptos(conceptosDePagoDto);
+        return pagoDto;
+    }
 
     @Override
     public Factura findFacturaByCuentaCajaReferencia(String cuenta, Integer caja, Integer referencia)
@@ -43,6 +120,81 @@ public class FacturaServiceImpl implements FacturaService {
     @Override
     public Factura createFactura(Factura facturaNueva) {
         return facturaRepository.save(facturaNueva);
+    }
+    @Override
+    public Factura createFactura(NuevaFacturaDto nuevaFacturaDto)
+    {
+        //Localiza el pago en BD Comercial
+        PagoDto pagoDto= detalleDePago(nuevaFacturaDto.getCuenta(), nuevaFacturaDto.getCaja(), nuevaFacturaDto.getReferencia());
+        if(pagoDto==null)
+            throw new Excepcion(HttpStatus.NOT_FOUND,"No existe ningun registro de pago en la base de datos que coincida con los datos ingresados (CAJA:'"+nuevaFacturaDto.getCaja().toString()+"',REFERENCIA:'"+nuevaFacturaDto.getReferencia().toString()+"',CUENTA:'"+nuevaFacturaDto.getCuenta()+"')");
+
+        //Localiza el Receptor en la BD Facturacion
+        Receptor receptor=receptorService.getReceptorById(nuevaFacturaDto.getIdReceptor());
+        if(receptor==null)
+            throw new Excepcion(HttpStatus.NOT_FOUND, "El id del Receptor '" + nuevaFacturaDto.getIdReceptor() + "' no existe en la base de datos. Intente nuevamente. Si el problema persiste reportelo a JMAS Parral");
+
+        //Forma la estructura de la nueva factura
+        Factura nueva= new Factura();
+
+
+        UsoDeCfdi usoDeCfdi=usoDeCfdiService.getUsoDeCfdiById(nuevaFacturaDto.getIdUsoDeCfdi());
+        if(usoDeCfdi==null)
+            throw new Excepcion(HttpStatus.NOT_FOUND, "El uso del CFDI con clave '" + nuevaFacturaDto.getIdUsoDeCfdi() + "' no existe en la base de datos. Intente nuevamente. Si el problema persiste reportelo a JMAS Parral");
+
+        nueva.setUsoDeCfdi(usoDeCfdi);
+        nueva.setCuenta(pagoDto.getCuenta());
+        nueva.setNombre(pagoDto.getNombre());
+        nueva.setDireccion(pagoDto.getDireccion());
+        nueva.setCaja(pagoDto.getCaja());
+        nueva.setReferencia(pagoDto.getReferencia());
+        nueva.setFormaDePago(pagoDto.getFormaDePago());
+        nueva.setFechaDePago(pagoDto.getFechaDePago());
+        nueva.setReceptor(receptor);
+        nueva.setEmailRegistrado(receptor.getEmail());
+        nueva.setEmailAdicional(nuevaFacturaDto.getEmailAdicional());
+        nueva.setActiva(true);
+
+        nueva.setUuid("SIN TIMBRAR");
+        nueva.setNoCertificadoEmisor(0);
+        nueva.setNoCertificadoSat(0);
+        nueva.setFechaFacturacion(LocalDate.now().atStartOfDay());
+        nueva.setFechaDeCertificacion(LocalDateTime.now());
+
+        nueva.setXml("SIN TIMBRAR");
+        nueva.setCadenaOriginal("SIN TIMBRAR");
+        nueva.setSelloDigitalCfdi("SIN TIMBRAR");
+        nueva.setSelloDelSat("SIN TIMBRAR");
+
+
+
+
+
+        System.out.println(convertir.objetoAJsonString(nueva));
+
+
+       //  Recorrido de los conceptos de pago en pagoDto
+//        for (ConceptoDePagoDto conceptoDto : pagoDto.getConceptos()) {
+//            // Crear una instancia de ConceptoDePago
+//            ConceptoDePago concepto = new ConceptoDePago();
+//
+//            // Asignar los valores correspondientes del conceptoDto al concepto
+//            concepto.setClaveComercial(conceptoDto.getClaveComercial());
+//            concepto.setClaveSat(conceptoDto.getClaveSat());
+//            concepto.setDescripcion(conceptoDto.getDescripcion());
+//            concepto.setMonto(conceptoDto.getMonto());
+//            concepto.setTasa(conceptoDto.getTasa());
+//
+//            // Asignar la factura actual como la factura del concepto
+//            concepto.setFactura(nueva);
+//
+//            // Agregar el concepto a la lista de conceptos en nueva
+//            nueva.getConceptos().add(concepto);
+//        }
+
+
+        return facturaRepository.save(nueva);
+
     }
 
     @Override

@@ -14,7 +14,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "factura")
+@Table(name = "facturas")
 public class Factura {
 
     public Factura(Integer id)
@@ -40,9 +40,9 @@ public class Factura {
     private String xml;
     @Column(columnDefinition = "Text")
     private String cadenaOriginal;
-    @Column(columnDefinition = "Text")
+    @Column(columnDefinition = "Text ")
     private String selloDigitalCfdi;
-    @Column(columnDefinition = "Text")
+    @Column(columnDefinition = "Text ")
     private String selloDelSat;
     @Column(nullable = false, length = 10)
     private String cuenta;
@@ -57,8 +57,9 @@ public class Factura {
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "forma_de_pago_id")
     private FormaDePago formaDePago;
-    private LocalDate fechaDePago;
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "UTC")
+    private LocalDate fechaDePago;
+    @JsonFormat(pattern = "yyyy-MM-dd hh:mm:ss", timezone = "UTC")
     private LocalDateTime fechaDeCertificacion;
     @Column(nullable = false, length = 20)
     private Integer noCertificadoEmisor;

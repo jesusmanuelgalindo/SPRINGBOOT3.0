@@ -1,5 +1,7 @@
 package gob.jmas.utils;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 @Component
@@ -103,5 +105,16 @@ public class Convertir {
         String cantidadEnLetras=cantidadConLetra(String.valueOf(enteros)).toUpperCase();
         cantidadEnLetras="("+cantidadEnLetras+ "PESOS "+ String.valueOf(decimales)+"/100 MXN)";
         return cantidadEnLetras;
+    }
+
+    public String objetoAJsonString(Object objeto)
+    {
+
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
+        // Convertir el objeto a JSON
+        String jsonString = gson.toJson(objeto);
+
+        return jsonString;
     }
 }

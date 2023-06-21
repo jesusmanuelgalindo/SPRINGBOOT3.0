@@ -18,7 +18,7 @@ public class ConceptoDePago {
     private Integer id;
 
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "factura_id")
+    @JoinColumn(name = "facturas_id")
     private Factura factura;
     private Integer claveComercial;
     private Integer claveSat;

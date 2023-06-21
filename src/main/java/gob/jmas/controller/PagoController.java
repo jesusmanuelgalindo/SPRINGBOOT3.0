@@ -43,7 +43,7 @@ public class PagoController {
         String nombreDelEndpoint=request.getRequestURI();
         try
         {
-            PagoDto  pagoDto= pagoService.detalleDePago(pagoBuscarDto.getCuenta(), pagoBuscarDto.getCaja(), pagoBuscarDto.getReferencia());
+            PagoDto  pagoDto= facturaService.detalleDePago(pagoBuscarDto.getCuenta(), pagoBuscarDto.getCaja(), pagoBuscarDto.getReferencia());
             if(pagoDto==null)
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Respuesta<PagoDto>  (null,0,"No existe ningun registro de pago en la base de datos que coincida con los datos ingresados (CAJA:'"+pagoBuscarDto.getCaja().toString()+"',REFERENCIA:'"+pagoBuscarDto.getReferencia().toString()+"',CUENTA:'"+pagoBuscarDto.getCuenta()+"')",nombreDelEndpoint));
             else
