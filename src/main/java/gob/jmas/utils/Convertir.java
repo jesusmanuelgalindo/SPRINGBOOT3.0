@@ -2,8 +2,18 @@ package gob.jmas.utils;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import gob.jmas.dto.facturamaFactura.FacturamaFactura;
+import gob.jmas.dto.facturamaFactura.Item;
+import gob.jmas.dto.facturamaFactura.Receiver;
+import gob.jmas.dto.facturamaFactura.Tax;
+import gob.jmas.model.facturacion.ConceptoDePago;
+import gob.jmas.model.facturacion.Factura;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+
 @Component
 public class Convertir {
 
@@ -117,4 +127,58 @@ public class Convertir {
 
         return jsonString;
     }
+
+    public FacturamaFactura facturaAFacturamaFactura(@NotNull Factura factura) {
+        FacturamaFactura facturamaFactura= new FacturamaFactura();
+
+        facturamaFactura.setSerie("A"); // Valor fijo "A"
+        facturamaFactura.setCurrency("MXN"); // Valor fijo "MXN"
+        facturamaFactura.setExpeditionPlace("33800"); // Valor fijo "33800"
+        facturamaFactura.setPaymentConditions("CONTADO"); // Valor fijo "CONTADO"
+        facturamaFactura.setFolio(factura.getId().toString()); // Usar el atributo id de la entidad Factura
+        facturamaFactura.setCfdiType("I"); // Valor fijo "I"
+        facturamaFactura.setPaymentForm(factura.getFormaDePago().getClaveSat()); // Usar el atributo formaDePago.claveSat de la entidad Factura
+        facturamaFactura.setPaymentMethod("PUE"); // Valor fijo "PUE"
+
+        // Crear objeto Receiver y establecer valores
+        Receiver receiver = new Receiver();
+        receiver.setRfc(factura.getReceptor().getRfc()); // Usar el atributo receptor.rfc de la entidad Factura
+        receiver.setName(factura.getReceptor().getRazonSocial()); // Usar el atributo receptor.razonSocial de la entidad Factura
+        receiver.setCfdiUse(factura.getUsoDeCfdi().getClave()); // Usar el atributo usoDeCfdi.clave de la entidad Factura
+        facturamaFactura.setReceiver(receiver);
+
+        // Crear lista de Items y establecer valores
+        List<Item> items = new ArrayList<>();
+        for (ConceptoDePago concepto : factura.getConceptos()) {
+            Item item = new Item();
+            item.setProductCode(concepto.getClaveSat().toString()); // Usar el atributo claveSat de la entidad ConceptoDePago
+            item.setIdentificationNumber(concepto.getClaveComercial().toString()); // Usar el atributo descripcion de la entidad ConceptoDePago
+            item.setDescription(concepto.getDescripcion()); // Usar el atributo descripcion de la entidad ConceptoDePago
+            item.setUnit("Unidad de Servicio"); // Valor fijo "NO APLICA"
+            item.setUnitCode("E48"); // No hay un atributo correspondiente en la entidad Factura, dejar vacío
+            item.setUnitPrice(concepto.getMonto()); // Usar el atributo monto de la entidad ConceptoDePago
+            item.setQuantity(1.0); // Valor fijo 1.0
+            item.setSubtotal(concepto.getMonto()); // Usar el atributo monto de la entidad ConceptoDePago
+            item.setDiscount(0.0); // Valor fijo 0.0
+
+            List<Tax> taxes = new ArrayList<>();
+            Tax tax = new Tax();
+            tax.setTotal(concepto.getMonto() * concepto.getTasa()/100); // Calcular el total del impuesto
+            tax.setName("IVA"); // Valor fijo "IVA"
+            tax.setBase(concepto.getMonto()); // Usar el atributo monto de la entidad ConceptoDePago
+            tax.setRate(concepto.getTasa()/100); // tasa
+            tax.setIsRetention(false); // Valor fijo false
+
+            taxes.add(tax);
+            item.setTaxes(taxes);
+
+            item.setTotal(concepto.getMonto() * (1+concepto.getTasa()/100)); // Calcular el total (monto + impuesto)
+
+            items.add(item);
+        }
+
+        facturamaFactura.setItems(items);
+        return  facturamaFactura;
+    }
+
 }

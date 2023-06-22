@@ -6,11 +6,15 @@ import gob.jmas.dto.FacturaDto;
 import gob.jmas.dto.NuevaFacturaDto;
 import gob.jmas.dto.PagoDto;
 import gob.jmas.dto.ReceptorDto;
+import gob.jmas.dto.facturamaFactura.FacturamaFactura;
+import gob.jmas.dto.facturamaResponse.FacturamaResponse;
 import gob.jmas.model.facturacion.*;
 import gob.jmas.service.factura.FacturaService;
+import gob.jmas.service.facturama.FacturamaService;
 import gob.jmas.service.pago.PagoService;
 import gob.jmas.service.usoDeCfdi.UsoDeCfdiService;
 import gob.jmas.utils.Censurar;
+import gob.jmas.utils.Convertir;
 import gob.jmas.utils.Excepcion;
 import gob.jmas.utils.Respuesta;
 import io.swagger.annotations.ApiOperation;
@@ -18,6 +22,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import javax.persistence.*;
 import javax.servlet.http.HttpServletRequest;
@@ -37,41 +43,34 @@ public class FacturaController {
     @Autowired
     FacturaService facturaService;
 
+    @Autowired
+    FacturamaService facturamaService;
 
 
-
+    @Autowired
+    Convertir convertir;
 
     @PostMapping("/nueva")
-    @ApiOperation(value = "Registra un nueva Factura en la base de datos")
-    public ResponseEntity<Respuesta<FacturaDto>> crearFactura(@Valid @RequestBody NuevaFacturaDto nuevaFacturaDto)
-    {
-        String nombreDelEndpoint=request.getRequestURI();
-        try
-        {
-
-            //Crear Factura
+    @ApiOperation(value = "Registra una nueva Factura en la base de datos")
+    public Mono<ResponseEntity<Respuesta<FacturamaResponse>>> crearFactura(@Valid @RequestBody NuevaFacturaDto nuevaFacturaDto) {
+        String nombreDelEndpoint = request.getRequestURI();
+        try {
+            // Crear Factura
             Factura nueva = facturaService.createFactura(nuevaFacturaDto);
+            FacturamaFactura enviar= convertir.facturaAFacturamaFactura(nueva);
+            System.out.println(convertir.objetoAJsonString(enviar));
 
-            //Timbra la Factura
-
-
-
-
-            return ResponseEntity.ok(new Respuesta<FacturaDto>(new FacturaDto(nueva), 1, "", nombreDelEndpoint));
-
+            // Realizar petición a Facturama y suscribirse a la respuesta
+            return facturamaService.enviarFactura(enviar)
+                    .map(facturamaResponse -> ResponseEntity.ok(new Respuesta<>(facturamaResponse, 1, "", nombreDelEndpoint)))
+                    .onErrorResume(error -> Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                            .body(new Respuesta<>(null, 0, error.getMessage(), nombreDelEndpoint))))
+                    .subscribeOn(Schedulers.boundedElastic());
+        } catch (Excepcion e) {
+            // Cualquier otra excepción se regresa en la respuesta
+            return Mono.just(ResponseEntity.status(e.getTipo())
+                    .body(new Respuesta<>(null, 0, e.getMessage(), nombreDelEndpoint)));
         }
-        catch (Excepcion e)
-        {
-            //Cualquier otra excepcion la regresa en la respuesta
-            return ResponseEntity.status(e.getTipo()).body(new Respuesta<FacturaDto>  (null,0,e.getMessage(),nombreDelEndpoint));
-        }
-//        catch (RuntimeException e)
-//        {
-//            //Cualquier otra excepcion la regresa en la respuesta
-//            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(new Respuesta<Factura>  (null,0,e.getMessage(),nombreDelEndpoint));
-//        }
-
-
     }
 
 }

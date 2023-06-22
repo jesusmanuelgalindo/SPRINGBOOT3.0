@@ -8,6 +8,7 @@ import lombok.Setter;
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -69,5 +70,5 @@ public class Factura {
     private String emailAdicional;
     private Boolean activa;
     @OneToMany(mappedBy = "factura", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ConceptoDePago> conceptos;
+    private List<ConceptoDePago> conceptos = new ArrayList<>();;
 }

@@ -153,14 +153,16 @@ public class FacturaServiceImpl implements FacturaService {
         nueva.setReceptor(receptor);
         nueva.setEmailRegistrado(receptor.getEmail());
         nueva.setEmailAdicional(nuevaFacturaDto.getEmailAdicional());
-        nueva.setActiva(true);
+        nueva.setActiva(false);
 
+
+
+        //Esto lo va obtener del servicio del PAC
         nueva.setUuid("SIN TIMBRAR");
         nueva.setNoCertificadoEmisor(0);
         nueva.setNoCertificadoSat(0);
         nueva.setFechaFacturacion(LocalDate.now().atStartOfDay());
         nueva.setFechaDeCertificacion(LocalDateTime.now());
-
         nueva.setXml("SIN TIMBRAR");
         nueva.setCadenaOriginal("SIN TIMBRAR");
         nueva.setSelloDigitalCfdi("SIN TIMBRAR");
@@ -170,27 +172,26 @@ public class FacturaServiceImpl implements FacturaService {
 
 
 
-        System.out.println(convertir.objetoAJsonString(nueva));
 
 
-       //  Recorrido de los conceptos de pago en pagoDto
-//        for (ConceptoDePagoDto conceptoDto : pagoDto.getConceptos()) {
-//            // Crear una instancia de ConceptoDePago
-//            ConceptoDePago concepto = new ConceptoDePago();
-//
-//            // Asignar los valores correspondientes del conceptoDto al concepto
-//            concepto.setClaveComercial(conceptoDto.getClaveComercial());
-//            concepto.setClaveSat(conceptoDto.getClaveSat());
-//            concepto.setDescripcion(conceptoDto.getDescripcion());
-//            concepto.setMonto(conceptoDto.getMonto());
-//            concepto.setTasa(conceptoDto.getTasa());
-//
-//            // Asignar la factura actual como la factura del concepto
-//            concepto.setFactura(nueva);
-//
-//            // Agregar el concepto a la lista de conceptos en nueva
-//            nueva.getConceptos().add(concepto);
-//        }
+        // Recorrido de los conceptos de pago en pagoDto
+        for (ConceptoDePagoDto conceptoDto : pagoDto.getConceptos()) {
+            // Crear una instancia de ConceptoDePago
+            ConceptoDePago concepto = new ConceptoDePago();
+
+            // Asignar los valores correspondientes del conceptoDto al concepto
+            concepto.setClaveComercial(conceptoDto.getClaveComercial());
+            concepto.setClaveSat(conceptoDto.getClaveSat());
+            concepto.setDescripcion(conceptoDto.getDescripcion());
+            concepto.setMonto(conceptoDto.getMonto());
+            concepto.setTasa(conceptoDto.getTasa());
+
+            // Asignar la factura actual como la factura del concepto
+            concepto.setFactura(nueva);
+
+            // Agregar el concepto a la lista de conceptos en nueva
+            nueva.getConceptos().add(concepto);
+        }
 
 
         return facturaRepository.save(nueva);
