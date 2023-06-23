@@ -1,5 +1,7 @@
 package gob.jmas.utils;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import gob.jmas.dto.facturamaFactura.FacturamaFactura;
@@ -13,7 +15,8 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.*;
 @Component
 public class Convertir {
 
@@ -181,4 +184,16 @@ public class Convertir {
         return  facturamaFactura;
     }
 
+    public <T> T jsonAModelo(String jsonString, Class<T> clase)
+    {
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            return objectMapper.readValue(jsonString, clase);
+        } catch (JsonMappingException e) {
+            throw new RuntimeException(e);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
 }

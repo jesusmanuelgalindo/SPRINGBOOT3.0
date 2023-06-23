@@ -15,16 +15,16 @@ import java.util.List;
 @NoArgsConstructor
 public class FacturamaFactura {
 
-    private String Serie;
-    private String Currency;
-    private String ExpeditionPlace;
-    private String PaymentConditions;
-    private String Folio;
-    private String CfdiType;
-    private String PaymentForm;
-    private String PaymentMethod;
-    private Receiver Receiver;
-    private List<Item> Items;
+     String Serie;
+     String Currency;
+     String ExpeditionPlace;
+     String PaymentConditions;
+     String Folio;
+     String CfdiType;
+     String PaymentForm;
+     String PaymentMethod;
+     Receiver Receiver;
+     List<Item> Items;
 
     // Constructor, getters y setters
 

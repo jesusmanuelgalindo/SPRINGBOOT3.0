@@ -70,7 +70,7 @@ public class ReceptorServiceImpl implements  ReceptorService {
         if (receptor.getRfc() != null && !receptor.getRfc().isEmpty()) {
 
            Receptor verificarRfc= getReceptorByRfc(receptor.getRfc());
-           if(verificarRfc!=null)
+           if(verificarRfc!=null && !verificarRfc.getId().equals(id))
                throw new Excepcion(HttpStatus.CONFLICT, "El RFC '" + receptor.getRfc() + "' Ya se encuentra en uso en un registro previo.");
 
             receptorExistente.setRfc(receptor.getRfc());
