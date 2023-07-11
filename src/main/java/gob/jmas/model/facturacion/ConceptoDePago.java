@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 
 @Getter
 @Setter
@@ -23,6 +24,6 @@ public class ConceptoDePago {
     private Integer claveComercial;
     private Integer claveSat;
     private String descripcion;
-    private Double monto;
-    private Double tasa;
+    private BigDecimal monto;
+    private BigDecimal tasa;
 }

@@ -4,6 +4,8 @@ import ch.qos.logback.core.joran.spi.ElementSelector;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import gob.jmas.dto.facturamaException.FacturamaException;
+import gob.jmas.dto.facturamaException.ModelException;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.hibernate.exception.SQLGrammarException;
 import org.slf4j.Logger;
@@ -18,10 +20,12 @@ import org.springframework.validation.BindException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintViolationException;
 import javax.validation.ConstraintViolation;
+import java.util.Map;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -29,22 +33,25 @@ public class GlobalExceptionHandler {
     private static final Logger logger = LoggerFactory.getLogger(Respuesta.class);
     @Autowired
     private HttpServletRequest request;
-//    @ExceptionHandler(ConstraintViolationException.class)
-//    public ResponseEntity<Respuesta<String>> handleConstraintViolationException(ConstraintViolationException ex) {
-//        Throwable rootCause = ExceptionUtils.getRootCause(ex);
-//        logger.warn("[ConstraintViolationException] "+ex.getMessage());
-//        logger.warn("[ConstraintViolationException] "+rootCause.getMessage());
-//        //Se lanza cuando se viola una restricción de validación en una entidad o DTO
-//        String nombreDelEndpoint=request.getRequestURI();
-//        String errorMessage = ex.getConstraintViolations().stream()
-//                .map(ConstraintViolation::getMessage)
-//                .findFirst()
-//                .orElse("Error desconocido");
-//
-//        Respuesta<String> respuesta = new Respuesta<String>(null,0,errorMessage,nombreDelEndpoint);
-//
-//        return ResponseEntity.badRequest().body(respuesta);
-//    }
+
+    @Autowired
+    private Convertir convertir;
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<Respuesta<String>> handleConstraintViolationException(ConstraintViolationException ex) {
+        Throwable rootCause = ExceptionUtils.getRootCause(ex);
+        logger.warn("[ConstraintViolationException] "+ex.getMessage());
+        logger.warn("[ConstraintViolationException] "+rootCause.getMessage());
+        //Se lanza cuando se viola una restricción de validación en una entidad o DTO
+        String nombreDelEndpoint=request.getRequestURI();
+        String errorMessage = ex.getConstraintViolations().stream()
+                .map(ConstraintViolation::getMessage)
+                .findFirst()
+                .orElse("Error desconocido");
+
+        Respuesta<String> respuesta = new Respuesta<String>(null,0,errorMessage,nombreDelEndpoint);
+
+        return ResponseEntity.badRequest().body(respuesta);
+    }
 
     @ExceptionHandler(BindException.class)
     public ResponseEntity<Respuesta<String>> handleBindException(BindException ex) {
@@ -62,7 +69,28 @@ public class GlobalExceptionHandler {
         Respuesta<String> respuesta = new Respuesta<String>(null,0,errorMessage,nombreDelEndpoint);
         return ResponseEntity.badRequest().body(respuesta);
     }
+    @ExceptionHandler(WebClientResponseException.class)
+    public ResponseEntity<Respuesta<String>> handleWebClientResponseException(WebClientResponseException ex, HttpServletRequest request) {
+        Throwable rootCause = ExceptionUtils.getRootCause(ex);
+        logger.error("[WebClientResponseException] " + ex.getMessage());
+        //logger.error("[WebClientResponseException] " + rootCause.getMessage());
 
+        String nombreDelEndpoint = request.getRequestURI();
+        String errorMessage = ex.getResponseBodyAsString();
+        ModelException modelException = convertir.jsonAModelo(errorMessage,ModelException.class);
+        //System.out.println(convertir.objetoAJsonString(modelException));
+
+        StringBuilder stringBuilder = new StringBuilder();
+        for (Map.Entry<String, String[]> entry : modelException.getModelState().entrySet()) {
+            String clave = entry.getKey();
+            String[] valores = entry.getValue();
+            for (String valor : valores) {
+                stringBuilder.append(clave).append(":").append(valor).append("\n");
+            }
+        }
+        Respuesta<String> respuesta = new Respuesta<>(null, 0, modelException.getMessage()+"! "+stringBuilder.toString(), nombreDelEndpoint);
+        return ResponseEntity.status(ex.getStatusCode()).body(respuesta);
+    }
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Respuesta<String>> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
         Throwable rootCause = ExceptionUtils.getRootCause(ex);
@@ -79,19 +107,19 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(respuesta);
     }
 
-//    @ExceptionHandler(RuntimeException.class)
-//    public ResponseEntity<Respuesta<String>> handleRuntimeException(RuntimeException ex) {
-//        Throwable rootCause = ExceptionUtils.getRootCause(ex);
-//        logger.error("[RuntimeException] "+ex.getMessage());
-//        logger.error("[RuntimeException] "+rootCause.getMessage());
-//        //Clase base para todas las excepciones no verificadas en Java.
-//        //Puede ser generadas por errores de lógica del programa, problemas de programación, condiciones inesperadas o situaciones excepcionales.
-//        String nombreDelEndpoint=request.getRequestURI();
-//        String errorMessage = ex.getMessage();
-//        System.out.println("RUNTIME EXCEPTION");
-//        Respuesta<String> respuesta = new Respuesta<String>(null,0,errorMessage,nombreDelEndpoint);
-//        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(respuesta);
-//    }
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<Respuesta<String>> handleRuntimeException(RuntimeException ex) {
+        Throwable rootCause = ExceptionUtils.getRootCause(ex);
+        logger.error("[RuntimeException] "+ex.getMessage());
+        logger.error("[RuntimeException] "+rootCause.getMessage());
+        //Clase base para todas las excepciones no verificadas en Java.
+        //Puede ser generadas por errores de lógica del programa, problemas de programación, condiciones inesperadas o situaciones excepcionales.
+        String nombreDelEndpoint=request.getRequestURI();
+        String errorMessage = ex.getMessage();
+        System.out.println("RUNTIME EXCEPTION");
+        Respuesta<String> respuesta = new Respuesta<String>(null,0,errorMessage,nombreDelEndpoint);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(respuesta);
+    }
 
     @ExceptionHandler(NoHandlerFoundException.class)
     public ResponseEntity<Respuesta<String>> handleNoHandlerFoundException(NoHandlerFoundException ex) {

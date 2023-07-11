@@ -2,21 +2,24 @@ package gob.jmas.utils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import gob.jmas.dto.facturamaFactura.FacturamaFactura;
-import gob.jmas.dto.facturamaFactura.Item;
-import gob.jmas.dto.facturamaFactura.Receiver;
-import gob.jmas.dto.facturamaFactura.Tax;
+import gob.jmas.dto.facturamaFactura.*;
 import gob.jmas.model.facturacion.ConceptoDePago;
 import gob.jmas.model.facturacion.Factura;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
 import java.util.List;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.exc.*;
+
 @Component
 public class Convertir {
 
@@ -120,80 +123,139 @@ public class Convertir {
         return cantidadEnLetras;
     }
 
-    public String objetoAJsonString(Object objeto)
-    {
-
+    public String objetoAJsonString(Object objeto) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+        try {
+            return objectMapper.writeValueAsString(objeto);
+        }
+        catch (JsonProcessingException e)
+        {
+        System.out.println( e.getMessage());
+        System.out.println("Hubo un problema con JACKSON y se intentara realizar la operacion con GSON");
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
-
-        // Convertir el objeto a JSON
-        String jsonString = gson.toJson(objeto);
-
-        return jsonString;
+        return gson.toJson(objeto);
+        }
     }
+    public Cfdi facturaACfdi(@NotNull Factura factura) {
+        Cfdi cfdi = new Cfdi();
 
-    public FacturamaFactura facturaAFacturamaFactura(@NotNull Factura factura) {
-        FacturamaFactura facturamaFactura= new FacturamaFactura();
+        cfdi.setNameId(1);//Atributo para especificar el nombre que se establecera en el pdf (default 1 = factura)
+        cfdi.setSerie("A"); // Valor fijo "A"
+        cfdi.setCurrency("MXN"); // Valor fijo "MXN"
+        cfdi.setExpeditionPlace("33800"); // Valor fijo "33800"
+        cfdi.setPaymentConditions("CONTADO"); // Valor fijo "CONTADO"
+        cfdi.setFolio(factura.getId().toString()); // Usar el atributo id de la entidad Factura
+        cfdi.setCfdiType("I"); // Valor fijo "I"
+        cfdi.setPaymentForm(factura.getFormaDePago().getClaveSat()); // Usar el atributo formaDePago.claveSat de la entidad Factura
+        cfdi.setPaymentMethod("PUE"); // Valor fijo "PUE"
+        //DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'00:00:00");
+        cfdi.setDate(LocalDateTime.now().format(formatter));//Fecha y hora actual
 
-        facturamaFactura.setSerie("A"); // Valor fijo "A"
-        facturamaFactura.setCurrency("MXN"); // Valor fijo "MXN"
-        facturamaFactura.setExpeditionPlace("33800"); // Valor fijo "33800"
-        facturamaFactura.setPaymentConditions("CONTADO"); // Valor fijo "CONTADO"
-        facturamaFactura.setFolio(factura.getId().toString()); // Usar el atributo id de la entidad Factura
-        facturamaFactura.setCfdiType("I"); // Valor fijo "I"
-        facturamaFactura.setPaymentForm(factura.getFormaDePago().getClaveSat()); // Usar el atributo formaDePago.claveSat de la entidad Factura
-        facturamaFactura.setPaymentMethod("PUE"); // Valor fijo "PUE"
+
+        //Otros Datos sin obtener aun
+        cfdi.setCertNumber(factura.getNoCertificadoSat().toString());
+        cfdi.setPaymentTerms("");
+        //cfdi.setPaymentAccountNumber("");
+        cfdi.setExchangeRate(0.0);
+        cfdi.setStatus("");
+        cfdi.setOriginalString("");
+        cfdi.setOrderNumber("");
+        cfdi.setPaymentBankName("");
 
         // Crear objeto Receiver y establecer valores
         Receiver receiver = new Receiver();
-        receiver.setRfc(factura.getReceptor().getRfc()); // Usar el atributo receptor.rfc de la entidad Factura
-        receiver.setName(factura.getReceptor().getRazonSocial()); // Usar el atributo receptor.razonSocial de la entidad Factura
+        receiver.setId(factura.getReceptor().getId());
+        receiver.setRfc(factura.getReceptor().getRfc());
+        receiver.setName(factura.getReceptor().getRazonSocial());
+        receiver.setFiscalRegime(factura.getReceptor().getRegimenFiscal().getClave().toString());
         receiver.setCfdiUse(factura.getUsoDeCfdi().getClave()); // Usar el atributo usoDeCfdi.clave de la entidad Factura
-        facturamaFactura.setReceiver(receiver);
+        receiver.setTaxZipCode(factura.getReceptor().getCodigoPostal().toString());
+        cfdi.setReceiver(receiver);
+
+        if(receiver.getRfc().equals("XAXX010101000"))
+        {
+            receiver.setCfdiUse("S01");
+            GlobalInformation globalInformation= new GlobalInformation();
+            globalInformation.setPeriodicity("04");
+            globalInformation.setYear(String.format("%04d", LocalDate.now().getYear()));
+            globalInformation.setMonths(String.format("%02d", LocalDate.now().getMonthValue()));
+            cfdi.setGlobalInformation(globalInformation);
+        }
 
         // Crear lista de Items y establecer valores
         List<Item> items = new ArrayList<>();
         for (ConceptoDePago concepto : factura.getConceptos()) {
             Item item = new Item();
-            item.setProductCode(concepto.getClaveSat().toString()); // Usar el atributo claveSat de la entidad ConceptoDePago
-            item.setIdentificationNumber(concepto.getClaveComercial().toString()); // Usar el atributo descripcion de la entidad ConceptoDePago
-            item.setDescription(concepto.getDescripcion()); // Usar el atributo descripcion de la entidad ConceptoDePago
-            item.setUnit("Unidad de Servicio"); // Valor fijo "NO APLICA"
-            item.setUnitCode("E48"); // No hay un atributo correspondiente en la entidad Factura, dejar vacío
-            item.setUnitPrice(concepto.getMonto()); // Usar el atributo monto de la entidad ConceptoDePago
-            item.setQuantity(1.0); // Valor fijo 1.0
-            item.setSubtotal(concepto.getMonto()); // Usar el atributo monto de la entidad ConceptoDePago
-            item.setDiscount(0.0); // Valor fijo 0.0
+            item.setIdProduct(concepto.getClaveComercial().toString());
+            item.setProductCode(concepto.getClaveSat().toString());
+            item.setIdentificationNumber(concepto.getClaveComercial().toString());
+            item.setDescription(concepto.getDescripcion());
+            item.setUnit("Unidad de Servicio");
+            item.setUnitCode("E48");
+            item.setUnitPrice(concepto.getMonto());
+            item.setQuantity(BigDecimal.valueOf(1.0));
+            item.setSubtotal(concepto.getMonto());
+            item.setDiscount(BigDecimal.valueOf(0.0));
 
-            List<Tax> taxes = new ArrayList<>();
-            Tax tax = new Tax();
-            tax.setTotal(concepto.getMonto() * concepto.getTasa()/100); // Calcular el total del impuesto
-            tax.setName("IVA"); // Valor fijo "IVA"
-            tax.setBase(concepto.getMonto()); // Usar el atributo monto de la entidad ConceptoDePago
-            tax.setRate(concepto.getTasa()/100); // tasa
-            tax.setIsRetention(false); // Valor fijo false
-
-            taxes.add(tax);
-            item.setTaxes(taxes);
-
-            item.setTotal(concepto.getMonto() * (1+concepto.getTasa()/100)); // Calcular el total (monto + impuesto)
-
-            items.add(item);
+            if(concepto.getTasa().compareTo(BigDecimal.valueOf(0))>0)
+            {
+                List<Tax> Taxes = new ArrayList<>();
+                item.setTaxObject("02");
+                Tax tax = new Tax();
+                BigDecimal iva= concepto.getMonto().multiply( concepto.getTasa().divide(BigDecimal.valueOf(100)));
+                tax.setTotal(iva.setScale(2,RoundingMode.HALF_UP)); // Calcular el total del impuesto
+                tax.setName("IVA"); // Valor fijo "IVA"
+                tax.setBase(concepto.getMonto()); // Usar el atributo monto de la entidad ConceptoDePago
+                tax.setRate(concepto.getTasa().divide(BigDecimal.valueOf(100))); // tasa
+                tax.setIsRetention(false); // Valor fijo false
+                tax.setIsFederalTax(true);
+                tax.setIsQuota(false);
+                Taxes.add(tax);
+                item.setTaxes(Taxes);
+                item.setTotal(item.getSubtotal().add(item.getTaxes().stream()
+                        .map(Tax::getTotal)
+                        .reduce(BigDecimal.ZERO, BigDecimal::add)));
+            }
+            else
+            {
+                //01 - No objeto de impuesto
+                //02 - (Sí objeto de impuesto), se deben desglosar los Impuestos a nivel de Concepto.
+                item.setTaxObject("01");
+                item.setTotal(item.getSubtotal());
+            }
+            if(concepto.getMonto().compareTo(BigDecimal.valueOf(0))>0)
+                items.add(item);
         }
+        cfdi.setItems(items);
 
-        facturamaFactura.setItems(items);
-        return  facturamaFactura;
+
+
+        return cfdi;
     }
 
-    public <T> T jsonAModelo(String jsonString, Class<T> clase)
-    {
+    public <T> T jsonAModelo(String jsonString, Class<T> clase) {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             return objectMapper.readValue(jsonString, clase);
-        } catch (JsonMappingException e) {
-            throw new RuntimeException(e);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
+            // Manejar la excepción de procesamiento JSON
         }
-
+        return null;
     }
+
+//    public <T> T jsonAModelo(String jsonString, Class<T> clase)
+//    {
+//        ObjectMapper objectMapper = new ObjectMapper();
+//        try {
+//            return objectMapper.readValue(jsonString, clase);
+//        } catch (JsonMappingException e) {
+//            throw new RuntimeException(e);
+//        } catch (JsonProcessingException e) {
+//            throw new RuntimeException(e);
+//        }
+//
+//    }
 }

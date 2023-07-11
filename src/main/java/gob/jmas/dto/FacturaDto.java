@@ -8,7 +8,6 @@ import gob.jmas.model.facturacion.UsoDeCfdi;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
